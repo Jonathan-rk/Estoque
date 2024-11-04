@@ -1,0 +1,267 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+
+# armazena os usuários
+usuarios = {}
+
+#abrir a recuperação de senha
+def abrir_recuperacao_senha():
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Recuperação de Senha")
+    nova_janela.geometry("300x200")
+
+    rotulo = tk.Label(nova_janela, text="Digite seu e-mail para recuperação:", font=('Arial', 9, 'bold'))
+    rotulo.pack(pady=10)
+
+    entrada_email = tk.Entry(nova_janela, width=30)
+    entrada_email.pack(pady=5)
+
+    botao_confirmar = tk.Button(nova_janela, text="Enviar", command=lambda: print("E-mail enviado para:", entrada_email.get()))
+    botao_confirmar.pack(pady=10)
+
+# criar uma nova conta
+def criar_conta():
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Criar Conta")
+    nova_janela.geometry("300x300")
+
+    rotulo_usuario = tk.Label(nova_janela, text="Informe um nome de usuário:", font=('Arial', 9, 'bold'))
+    rotulo_usuario.pack(pady=10)
+
+    entrada_usuario = tk.Entry(nova_janela, width=30)
+    entrada_usuario.pack(pady=5)
+
+    rotulo_senha = tk.Label(nova_janela, text="Informe uma senha:", font=('Arial', 9, 'bold'))
+    rotulo_senha.pack(pady=10)
+
+    entrada_senha = tk.Entry(nova_janela, show='*', width=30)
+    entrada_senha.pack(pady=5)
+
+    botao_criar = tk.Button(nova_janela, text="Criar", command=lambda: criar_senha(entrada_usuario.get(), entrada_senha.get(), nova_janela))
+    botao_criar.pack(pady=10)
+
+#  armazenar uma nova conta
+def criar_senha(usuario, senha, janela):
+    if usuario in usuarios:
+        messagebox.showerror("Erro", "Usuário já existe. Tente outro nome.")
+    else:
+        usuarios[usuario] = senha
+        messagebox.showinfo("Sucesso", "Conta criada com sucesso!")
+        janela.destroy()
+
+# Função para fazer login
+def fazer_login():
+    usuario = nome_usuario.get()
+    senha = senha_entry.get()
+    
+    if usuario in usuarios and usuarios[usuario] == senha:
+        messagebox.showinfo("Login", f"Bem-vindo, {usuario}!")
+        janela.destroy()  # Fecha a janela de login
+        abrir_pagina_principal()  # Abre a página de controle de estoque
+    else:
+        messagebox.showerror("Erro", "Nome de usuário ou senha incorretos. Tente novamente.")
+
+# abri a página de controle de estoque
+def abrir_pagina_principal():
+    ControleEstoque()
+
+# Classe para controle de estoque
+class ControleEstoque:
+    def __init__(self):
+        # Janela principal
+        self.janela = tk.Tk()
+        self.janela.title("Controle de Estoque - Loja de Eletrônicos")
+        self.janela.geometry("700x500")
+        self.janela.configure(bg="#0066CC")
+
+        # Lista de produtos
+        self.estoque = []
+
+        tk.Label(self.janela, text="Controle de Estoque - Loja de Eletrônicos", font=("Arial", 16, 'bold'), bg="#0066CC", fg="white").pack(pady=10)
+
+        # Frame para exibir o estoque
+        self.frame_estoque = tk.Frame(self.janela, bg="#0066CC")
+        self.frame_estoque.pack(pady=10)
+
+        # Tabela de produtos
+        self.tabela = ttk.Treeview(self.frame_estoque, columns=("Produto", "Categoria", "Quantidade", "Preço"), show="headings")
+        self.tabela.heading("Produto", text="Produto")
+        self.tabela.heading("Categoria", text="Categoria")
+        self.tabela.heading("Quantidade", text="Quantidade")
+        self.tabela.heading("Preço", text="Preço (R$)")
+        self.tabela.pack()
+
+        # Botões de funcionalidade
+        self.botao_frame = tk.Frame(self.janela, bg="#0066CC")
+        self.botao_frame.pack(pady=10)
+
+        tk.Button(self.botao_frame, text="Adicionar Produto", command=self.abrir_janela_adicionar, bg="white", fg="black").grid(row=0, column=0, padx=5)
+        tk.Button(self.botao_frame, text="Consultar Produto", command=self.abrir_janela_consulta, bg="white", fg="black").grid(row=0, column=1, padx=5)
+        tk.Button(self.botao_frame, text="Atualizar Produto", command=self.abrir_janela_atualizar, bg="white", fg="black").grid(row=0, column=2, padx=5)
+        tk.Button(self.botao_frame, text="Excluir Produto", command=self.excluir_produto, bg="white", fg="black").grid(row=0, column=3, padx=5)
+        tk.Button(self.botao_frame, text="Relatório de Baixo Estoque", command=self.relatorio_baixo_estoque, bg="white", fg="black").grid(row=0, column=4, padx=5)
+
+        self.janela.mainloop()
+
+    # Função para adicionar produto
+    def abrir_janela_adicionar(self):
+        janela_adicionar = tk.Toplevel(self.janela)
+        janela_adicionar.title("Adicionar Produto")
+        janela_adicionar.configure(bg="#0066CC")
+
+        tk.Label(janela_adicionar, text="Produto:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        produto_entry = tk.Entry(janela_adicionar)
+        produto_entry.grid(row=0, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Categoria:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
+        categoria_entry = tk.Entry(janela_adicionar)
+        categoria_entry.grid(row=1, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Quantidade:", bg="#0066CC", fg="white").grid(row=2, column=0, pady=5)
+        quantidade_entry = tk.Entry(janela_adicionar)
+        quantidade_entry.grid(row=2, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Preço:", bg="#0066CC", fg="white").grid(row=3, column=0, pady=5)
+        preco_entry = tk.Entry(janela_adicionar)
+        preco_entry.grid(row=3, column=1, pady=5)
+
+        def confirmar():
+            produto = produto_entry.get()
+            categoria = categoria_entry.get()
+            try:
+                quantidade = int(quantidade_entry.get())
+                preco = float(preco_entry.get())
+            except ValueError:
+                messagebox.showerror("Erro", "Quantidade e preço devem ser numéricos!")
+                return
+
+            self.estoque.append((produto, categoria, quantidade, preco))
+            self.atualizar_tabela()
+            janela_adicionar.destroy()
+
+        tk.Button(janela_adicionar, text="Cadastrar", command=confirmar, bg="white", fg="black").grid(row=4, column=0, columnspan=2, pady=10)
+
+    # Funções para consultar, atualizar e excluir produtos
+    def abrir_janela_consulta(self):
+        janela_consulta = tk.Toplevel(self.janela)
+        janela_consulta.title("Consultar Produto")
+        janela_consulta.configure(bg="#0066CC")
+
+        tk.Label(janela_consulta, text="Nome do Produto:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        consulta_entry = tk.Entry(janela_consulta)
+        consulta_entry.grid(row=0, column=1, pady=5)
+
+        def consultar():
+            nome = consulta_entry.get()
+            for produto in self.estoque:
+                if produto[0].lower() == nome.lower():
+                    messagebox.showinfo("Consulta", f"Produto: {produto[0]}\nCategoria: {produto[1]}\nQuantidade: {produto[2]}\nPreço: R${produto[3]:.2f}")
+                    return
+            messagebox.showinfo("Consulta", "Produto não encontrado")
+
+        tk.Button(janela_consulta, text="Consultar", command=consultar, bg="white", fg="black").grid(row=1, column=0, columnspan=2, pady=10)
+
+    def abrir_janela_atualizar(self):
+        janela_atualizar = tk.Toplevel(self.janela)
+        janela_atualizar.title("Atualizar Produto")
+        janela_atualizar.configure(bg="#0066CC")
+
+        tk.Label(janela_atualizar, text="Nome do Produto:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        nome_entry = tk.Entry(janela_atualizar)
+        nome_entry.grid(row=0, column=1, pady=5)
+
+        tk.Label(janela_atualizar, text="Nova Quantidade:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
+        quantidade_entry = tk.Entry(janela_atualizar)
+        quantidade_entry.grid(row=1, column=1, pady=5)
+
+        tk.Label(janela_atualizar, text="Novo Preço:", bg="#0066CC", fg="white").grid(row=2, column=0, pady=5)
+        preco_entry = tk.Entry(janela_atualizar)
+        preco_entry.grid(row=2, column=1, pady=5)
+
+        def atualizar():
+            nome = nome_entry.get()
+            try:
+                nova_quantidade = int(quantidade_entry.get())
+                novo_preco = float(preco_entry.get())
+            except ValueError:
+                messagebox.showerror("Erro", "Quantidade e preço devem ser numéricos!")
+                return
+
+            for i, produto in enumerate(self.estoque):
+                if produto[0].lower() == nome.lower():
+                    self.estoque[i] = (produto[0], produto[1], nova_quantidade, novo_preco)
+                    self.atualizar_tabela()
+                    messagebox.showinfo("Atualização", "Produto atualizado com sucesso!")
+                    janela_atualizar.destroy()
+                    return
+
+            messagebox.showinfo("Atualização", "Produto não encontrado")
+
+        tk.Button(janela_atualizar, text="Atualizar", command=atualizar, bg="white", fg="black").grid(row=3, column=0, columnspan=2, pady=10)
+
+    def excluir_produto(self):
+        item_selecionado = self.tabela.selection()
+        if item_selecionado:
+            produto = self.tabela.item(item_selecionado, "values")[0]
+            for i, item in enumerate(self.estoque):
+                if item[0] == produto:
+                    self.estoque.pop(i)
+                    self.atualizar_tabela()
+                    messagebox.showinfo("Exclusão", "Produto excluído com sucesso!")
+                    return
+        else:
+            messagebox.showwarning("Atenção", "Nenhum produto selecionado para exclusão")
+
+    def relatorio_baixo_estoque(self):
+        baixo_estoque = [produto for produto in self.estoque if produto[2] < 5]
+        if baixo_estoque:
+            relatorio = "\n".join([f"{p[0]} - Quantidade: {p[2]}" for p in baixo_estoque])
+            messagebox.showinfo("Relatório de Baixo Estoque", relatorio)
+        else:
+            messagebox.showinfo("Relatório de Baixo Estoque", "Nenhum produto com baixo estoque")
+
+    def atualizar_tabela(self):
+        # Limpa a tabela e adiciona os produtos atualizados
+        for item in self.tabela.get_children():
+            self.tabela.delete(item)
+        for produto in self.estoque:
+            self.tabela.insert("", "end", values=(produto[0], produto[1], produto[2], f"R${produto[3]:.2f}"))
+
+# Janela de login
+janela = tk.Tk()
+janela.title("Login")
+janela.geometry("500x400")
+janela.configure(bg='#0065CC')
+
+nome_loja = tk.Label(janela, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), fg='white', bg='#0065CC')
+nome_loja.pack(pady=(50, 5))
+
+frame = tk.Frame(janela, bg='white', padx=20, pady=20, borderwidth=2, relief="groove")
+frame.pack(expand=True)
+
+mensagem = tk.Label(frame, text="Nome de usuário", font=('Arial', 9, 'bold'), fg='black', bg='white', width=25, height=1)
+mensagem.grid(row=0, column=0, pady=(0, 5))
+
+nome_usuario = tk.Entry(frame, width=30, bg='white')
+nome_usuario.grid(row=1, column=0, pady=(0, 10))
+
+mensagem2 = tk.Label(frame, text="Digite sua senha", font=('Arial', 9, 'bold'), fg='black', bg='white', width=25, height=1)
+mensagem2.grid(row=2, column=0, pady=(0, 5))
+
+senha_entry = tk.Entry(frame, show='*', width=30, bg='white')
+senha_entry.grid(row=3, column=0, pady=(0, 10))
+
+botao = tk.Button(frame, text="Entrar", width=10, command=fazer_login)
+botao.grid(row=4, column=0, pady=(10, 5))
+
+menu_opcoes = tk.Menubutton(frame, text="Mais...", relief="raised", fg='black', bg='white')
+menu_opcoes.menu = tk.Menu(menu_opcoes, tearoff=0)
+menu_opcoes["menu"] = menu_opcoes.menu
+
+menu_opcoes.menu.add_command(label="Criar conta", command=criar_conta)
+menu_opcoes.menu.add_command(label="Esqueci minha senha", command=abrir_recuperacao_senha)
+
+menu_opcoes.grid(row=5, column=0, pady=(5, 0))
+
+janela.mainloop()

@@ -1,0 +1,105 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+
+# Função para fazer login
+def fazer_login():
+    usuario = nome_usuario.get()
+    senha = senha_entry.get()
+    
+    if usuario in usuarios and usuarios[usuario] == senha:
+        messagebox.showinfo("Login", f"Bem-vindo, {usuario}!")
+        janela.destroy()  # Fecha a janela de login
+        abrir_pagina_principal()  # Substitua pela lógica para abrir a página principal
+    else:
+        messagebox.showerror("Erro", "Nome de usuário ou senha incorretos. Tente novamente.")
+
+# Função para criar uma nova conta
+def criar_conta():
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Criar Conta")
+    nova_janela.geometry("300x300")
+
+    tk.Label(nova_janela, text="Informe um nome de usuário:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_usuario = tk.Entry(nova_janela, width=30)
+    entrada_usuario.pack(pady=5)
+
+    tk.Label(nova_janela, text="Informe uma senha:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_senha = tk.Entry(nova_janela, show='*', width=30)
+    entrada_senha.pack(pady=5)
+
+    def salvar_conta():
+        usuario = entrada_usuario.get()
+        senha = entrada_senha.get()
+        if usuario in usuarios:
+            messagebox.showerror("Erro", "Usuário já existe. Tente outro nome.")
+        else:
+            usuarios[usuario] = senha
+            messagebox.showinfo("Sucesso", "Conta criada com sucesso!")
+            nova_janela.destroy()
+
+    tk.Button(nova_janela, text="Criar", command=salvar_conta).pack(pady=10)
+
+# Função para abrir recuperação de senha
+def abrir_recuperacao_senha():
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Recuperação de Senha")
+    nova_janela.geometry("300x200")
+
+    tk.Label(nova_janela, text="Digite seu e-mail para recuperação:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_email = tk.Entry(nova_janela, width=30)
+    entrada_email.pack(pady=5)
+
+    tk.Button(nova_janela, text="Enviar", command=lambda: print("E-mail enviado para:", entrada_email.get())).pack(pady=10)
+
+# Função para abrir a página principal (placeholder)
+def abrir_pagina_principal():
+    messagebox.showinfo("Bem-vindo", "Página principal aberta!")  # Substitua pela lógica real
+
+# Dicionário para armazenar usuários
+usuarios = {}
+
+# Janela de login
+janela = tk.Tk()
+janela.title("Login")
+janela.geometry("500x400")
+janela.configure(bg='#0065CC')
+
+# Nome da loja no topo
+nome_loja = tk.Label(janela, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), fg='white', bg='#0065CC')
+nome_loja.pack(pady=(50, 5))
+
+# Frame central para os campos de entrada e botões
+frame = tk.Frame(janela, bg='white', padx=20, pady=20, borderwidth=2, relief="groove")
+frame.pack(expand=True)
+
+# Nome de usuário
+mensagem = tk.Label(frame, text="Nome de usuário", font=('Arial', 9, 'bold'), fg='black', bg='white', width=25, height=1)
+mensagem.grid(row=0, column=0, pady=(0, 5))
+
+nome_usuario = tk.Entry(frame, width=30, bg='white')
+nome_usuario.grid(row=1, column=0, pady=(0, 10))
+
+# Senha
+mensagem2 = tk.Label(frame, text="Digite sua senha", font=('Arial', 9, 'bold'), fg='black', bg='white', width=25, height=1)
+mensagem2.grid(row=2, column=0, pady=(0, 5))
+
+senha_entry = tk.Entry(frame, show='*', width=30, bg='white')
+senha_entry.grid(row=3, column=0, pady=(0, 10))
+
+# Botão de login
+botao = tk.Button(frame, text="Entrar", width=10, command=fazer_login)
+botao.grid(row=4, column=0, pady=(10, 5))
+
+# Menu com opções adicionais
+menu_opcoes = tk.Menubutton(frame, text="Mais...", relief="raised", fg='black', bg='white')
+menu_opcoes.menu = tk.Menu(menu_opcoes, tearoff=0)
+menu_opcoes["menu"] = menu_opcoes.menu
+
+menu_opcoes.menu.add_command(label="Criar conta", command=criar_conta)
+menu_opcoes.menu.add_command(label="Esqueci minha senha", command=abrir_recuperacao_senha)
+
+menu_opcoes.grid(row=5, column=0, pady=(5, 0))
+
+# Inicializa a janela
+janela.mainloop()

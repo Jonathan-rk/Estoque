@@ -1,0 +1,410 @@
+import tkinter as tk
+from tkinter import ttk, messagebox
+
+class Estoque:
+    def __init__(self):
+        self.produtos = {
+            1: {
+                'nome': 'Notebook',
+                'marcas': {
+                    'Dell': 4500,
+                    'Lenovo': 3800,
+                    'HP': 4200,
+                    'Acer': 3500
+                }
+            },
+            2: {
+                'nome': 'Celular',
+                'marcas': {
+                    'Samsung': 2500,
+                    'Apple': 5000,
+                    'Xiaomi': 1800,
+                    'Motorola': 2000
+                }
+            },
+            3: {
+                'nome': 'Headphone',
+                'marcas': {
+                    'JBL': 400,
+                    'Sony': 500,
+                    'Razer': 600,
+                    'HyperX': 450
+                }
+            },
+            4: {
+                'nome': 'Smart TV',
+                'marcas': {
+                    'Samsung': 3000,
+                    'LG': 2800,
+                    'Sony': 3500,
+                    'TCL': 2200
+                }
+            },
+            5: {
+                'nome': 'Tablet',
+                'marcas': {
+                    'Apple': 4500,
+                    'Samsung': 2800,
+                    'Lenovo': 1800,
+                    'Xiaomi': 1500
+                }
+            }
+        }
+
+    def consultar_produto(self, produto_id):
+        return self.produtos.get(produto_id)
+
+class Carrinho:
+    def __init__(self):
+        self.itens = {}
+        
+    def adicionar_item(self, produto_id, produto, marca):
+        if produto_id in self.itens:
+            self.itens[produto_id]['quantidade'] += 1
+        else:
+            self.itens[produto_id] = {
+                'nome': produto['nome'],
+                'marca': marca,
+                'preco': produto['marcas'][marca],
+                'quantidade': 1
+            }
+            
+    def remover_item(self, produto_id):
+        if produto_id in self.itens:
+            del self.itens[produto_id]
+            
+    def calcular_total(self):
+        return sum(item['preco'] * item['quantidade'] for item in self.itens.values())
+    
+    def limpar(self):
+        self.itens.clear()
+
+class LojaEletronicosApp:
+    def __init__(self, root, estoque):
+        self.estoque = estoque
+        self.carrinho = Carrinho()
+        self.root = root
+        self.root.title("TECNOPOINT")
+        self.carrinho_visivel = False
+
+        # Configurar janela
+        self.root.geometry("1000x600")
+        self.root.configure(bg="#0065CC")
+
+        # Criar menu superior
+        self.create_menu()
+
+        # Frame principal
+        self.main_frame = ttk.Frame(root, padding="10")
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Frame esquerdo (produtos)
+        self.left_frame = ttk.Frame(self.main_frame)
+        self.left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Frame direito (carrinho)
+        self.right_frame = ttk.Frame(self.main_frame)
+        
+        # Configurar lado esquerdo (produtos)
+        self.setup_produtos_frame()
+
+        # Configurar lado direito (carrinho)
+        self.setup_carrinho_frame()
+
+        # Botão do carrinho
+        self.setup_cart_button()
+
+        # Estilo
+        self.setup_styles()
+
+        # Inicialmente esconde o carrinho
+        self.right_frame.pack_forget()
+
+    def setup_cart_button(self):
+        cart_frame = ttk.Frame(self.left_frame)
+        cart_frame.pack(anchor='ne', padx=10, pady=5)
+        
+        cart_button = ttk.Button(
+            cart_frame, 
+            text="🛒", 
+            command=self.toggle_carrinho,
+            style='Cart.TButton'
+        )
+        cart_button.pack(side=tk.RIGHT)
+
+        # Contador de itens
+        self.cart_count_label = ttk.Label(
+            cart_frame, 
+            text="0",
+            style='CartCount.TLabel'
+        )
+        self.cart_count_label.pack(side=tk.RIGHT, padx=5)
+
+    def toggle_carrinho(self):
+        if self.carrinho_visivel:
+            self.right_frame.pack_forget()
+        else:
+            self.right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)
+        self.carrinho_visivel = not self.carrinho_visivel
+
+    def create_menu(self):
+        menu_bar = tk.Menu(self.root)
+        self.root.config(menu=menu_bar)
+
+        file_menu = tk.Menu(menu_bar, tearoff=0)
+        menu_bar.add_cascade(label="Arquivo", menu=file_menu)
+        file_menu.add_command(label="Sair", command=self.root.quit)
+
+        help_menu = tk.Menu(menu_bar, tearoff=0)
+        menu_bar.add_cascade(label="Ajuda", menu=help_menu)
+        help_menu.add_command(label="Sobre", command=self.mostrar_sobre)
+
+    def setup_produtos_frame(self):
+        # Título
+        titulo_label = tk.Label(
+            self.left_frame, 
+            text="TECNOPOINT", 
+            font=('Cooper Black', 24, 'bold'), 
+            fg='white', 
+            bg='#0065CC'
+        )
+        titulo_label.pack(pady=10)
+
+        # Frame para a lista de produtos
+        produtos_frame = ttk.LabelFrame(
+            self.left_frame, 
+            text="Produtos Disponíveis", 
+            padding="5"
+        )
+        produtos_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Criar Treeview
+        self.tree = ttk.Treeview(
+            produtos_frame, 
+            columns=('ID', 'Nome', 'Marca', 'Preço'),
+            show='headings'
+        )
+
+        # Configurar colunas
+        self.tree.heading('ID', text='ID')
+        self.tree.heading('Nome', text='Nome')
+        self.tree.heading('Marca', text='Marca')
+        self.tree.heading('Preço', text='Preço (R$)')
+
+        self.tree.column('ID', width=50)
+        self.tree.column('Nome', width=150)
+        self.tree.column('Marca', width=150)
+        self.tree.column('Preço', width=100)
+
+        scrollbar = ttk.Scrollbar(
+            produtos_frame, 
+            orient=tk.VERTICAL, 
+            command=self.tree.yview
+        )
+        self.tree.configure(yscrollcommand=scrollbar.set)
+
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Frame para adicionar ao carrinho
+        compra_frame = ttk.LabelFrame(
+            self.left_frame, 
+            text="Adicionar ao Carrinho", 
+            padding="5"
+        )
+        compra_frame.pack(fill=tk.X, padx=5, pady=5)
+
+        ttk.Label(compra_frame, text="ID do Produto:", background="white", foreground="black").grid(row=0, column=0, padx=5, pady=5)
+        self.produto_id_entry = ttk.Entry(compra_frame, width=10)
+        self.produto_id_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        ttk.Label(compra_frame, text="Marca:", background="white", foreground="black").grid(row=0, column=2, padx=5, pady=5)
+        self.marca_combobox = ttk.Combobox(compra_frame, width=15)
+        self.marca_combobox.grid(row=0, column=3, padx=5, pady=5)
+
+        ttk.Button(
+            compra_frame, 
+            text="Adicionar ao Carrinho", 
+            command=self.adicionar_ao_carrinho
+        ).grid(row=0, column=4, padx=5, pady=5)
+
+        # Bind para atualizar marcas quando um produto é selecionado
+        self.produto_id_entry.bind('<KeyRelease>', self.atualizar_marcas)
+
+        # Atualizar produtos
+        self.atualizar_produtos()
+
+    def atualizar_marcas(self, event=None):
+        try:
+            produto_id = int(self.produto_id_entry.get())
+            produto = self.estoque.consultar_produto(produto_id)
+            if produto:
+                marcas = list(produto['marcas'].keys())
+                self.marca_combobox['values'] = marcas
+                if marcas:
+                    self.marca_combobox.set(marcas[0])
+            else:
+                self.marca_combobox['values'] = []
+                self.marca_combobox.set('')
+        except ValueError:
+            self.marca_combobox['values'] = []
+            self.marca_combobox.set('')
+
+    def setup_carrinho_frame(self):
+        carrinho_frame = ttk.LabelFrame(
+            self.right_frame, 
+            text="Carrinho de Compras", 
+            padding="5"
+        )
+        carrinho_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        self.carrinho_tree = ttk.Treeview(
+            carrinho_frame, 
+            columns=('ID', 'Nome', 'Marca', 'Preço', 'Qtd', 'Subtotal'),
+            show='headings'
+        )
+
+        self.carrinho_tree.heading('ID', text='ID')
+        self.carrinho_tree.heading('Nome', text='Nome')
+        self.carrinho_tree.heading('Marca', text='Marca')
+        self.carrinho_tree.heading('Preço', text='Preço (R$)')
+        self.carrinho_tree.heading('Qtd', text='Qtd')
+        self.carrinho_tree.heading('Subtotal', text='Subtotal')
+
+        self.carrinho_tree.column('ID', width=50)
+        self.carrinho_tree.column('Nome', width=150)
+        self.carrinho_tree.column('Marca', width=100)
+        self.carrinho_tree.column('Preço', width=100)
+        self.carrinho_tree.column('Qtd', width=50)
+        self.carrinho_tree.column('Subtotal', width=100)
+
+        self.carrinho_tree.pack(fill=tk.BOTH, expand=True)
+
+        total_frame = ttk.Frame(self.right_frame)
+        total_frame.pack(fill=tk.X, padx=5, pady=5)
+
+        self.total_label = ttk.Label(total_frame, text="Total: R$ 0.00")
+        self.total_label.pack(side=tk.LEFT, padx=5)
+
+        ttk.Button(
+            total_frame, 
+            text="Remover Item", 
+            command=self.remover_do_carrinho
+        ).pack(side=tk.RIGHT, padx=5)
+        
+        ttk.Button(
+            total_frame, 
+            text="Finalizar Compra", 
+            command=self.finalizar_compra
+        ).pack(side=tk.RIGHT, padx=5)
+
+    def setup_styles(self):
+        style = ttk.Style()
+        style.configure("TFrame", background="#0065CC")
+        style.configure("TLabel", background="#0065CC", foreground="white")
+        style.configure("TButton", padding=5)
+        style.configure("Cart.TButton", font=('TkDefaultFont', 12))
+        style.configure("CartCount.TLabel", 
+                       background='white', 
+                       foreground='black',
+                       padding=2)
+        style.configure("Treeview", rowheight=25)
+        style.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+    def atualizar_contador_carrinho(self):
+        total_itens = sum(item['quantidade'] for item in self.carrinho.itens.values())
+        self.cart_count_label.config(text=str(total_itens))
+
+    def adicionar_ao_carrinho(self):
+        try:
+            produto_id = int(self.produto_id_entry.get())
+            marca = self.marca_combobox.get()
+            produto = self.estoque.consultar_produto(produto_id)
+
+            if not produto:
+                messagebox.showerror("Erro", "ID do produto inválido.")
+                return
+
+            if not marca or marca not in produto['marcas']:
+                messagebox.showerror("Erro", "Selecione uma marca válida.")
+                return
+
+            self.carrinho.adicionar_item(produto_id, produto, marca)
+            self.atualizar_carrinho_view()
+            self.atualizar_contador_carrinho()
+            self.produto_id_entry.delete(0, tk.END)
+            self.marca_combobox.set('')
+
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira valores válidos.")
+
+    def remover_do_carrinho(self):
+        selected_item = self.carrinho_tree.selection()
+        if not selected_item:
+            messagebox.showwarning("Aviso", "Selecione um item para remover.")
+            return
+
+        item = self.carrinho_tree.item(selected_item[0])
+        produto_id = int(item['values'][0])
+        self.carrinho.remover_item(produto_id)
+        self.atualizar_carrinho_view()
+        self.atualizar_contador_carrinho()
+
+    def finalizar_compra(self):
+        if not self.carrinho.itens:
+            messagebox.showwarning("Aviso", "Carrinho vazio!")
+            return
+
+        total = self.carrinho.calcular_total()
+        messagebox.showinfo("Compra Finalizada", 
+                          f"Compra realizada com sucesso!\nTotal: R$ {total:.2f}")
+
+        self.carrinho.limpar()
+        self.atualizar_carrinho_view()
+        self.atualizar_produtos()
+        self.atualizar_contador_carrinho()
+
+    def atualizar_carrinho_view(self):
+        for item in self.carrinho_tree.get_children():
+            self.carrinho_tree.delete(item)
+
+        for produto_id, item in self.carrinho.itens.items():
+            subtotal = item['preco'] * item['quantidade']
+            self.carrinho_tree.insert('', 'end', values=(
+                produto_id,
+                item['nome'],
+                item['marca'],
+                f"{item['preco']:.2f}",
+                item['quantidade'],
+                f"{subtotal:.2f}"
+            ))
+
+        total = self.carrinho.calcular_total()
+        self.total_label.config(text=f"Total: R$ {total:.2f}")
+
+    def atualizar_produtos(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        for produto_id, dados in self.estoque.produtos.items():
+            for marca, preco in dados['marcas'].items():
+                self.tree.insert('', 'end', values=(
+                    produto_id,
+                    dados['nome'],
+                    marca,
+                    f"{preco:.2f}"
+                ))
+
+    def mostrar_sobre(self):
+        messagebox.showinfo(
+            "Sobre", 
+            "TECNOPOINT - Sua Loja de Eletrônicos\n"
+            "Versão 1.0\n"
+            "© 2024 TECNOPOINT"
+        )
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    estoque = Estoque()
+    app = LojaEletronicosApp(root, estoque)
+    root.mainloop()

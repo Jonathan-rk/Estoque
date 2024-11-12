@@ -1,0 +1,80 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+
+# armazena os usuários
+usuarios = {}
+usuarios_empresa = {}
+
+def selecionar_tipo():
+    janela_selecao = tk.Tk()
+    janela_selecao.title("TECNOPOINT - Selecione o tipo de acesso")
+    janela_selecao.geometry("400x300")
+    janela_selecao.configure(bg='#0065CC')
+
+    tk.Label(janela_selecao, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), 
+            fg='white', bg='#0065CC').pack(pady=(30,20))
+
+    tk.Label(janela_selecao, text="Selecione o tipo de acesso:", 
+            font=('Arial', 12, 'bold'), fg='white', bg='#0065CC').pack(pady=10)
+
+    def abrir_login_empresa():
+        janela_selecao.destroy()
+        criar_janela_login_empresa()
+
+    def abrir_login_cliente():
+        janela_selecao.destroy()
+        criar_janela_login_cliente()
+
+    tk.Button(janela_selecao, text="Empresa", width=20, height=2,
+              command=abrir_login_empresa).pack(pady=10)
+    tk.Button(janela_selecao, text="Cliente", width=20, height=2,
+              command=abrir_login_cliente).pack(pady=10)
+
+    janela_selecao.mainloop()
+
+def criar_janela_login_empresa():
+    global janela
+    janela = tk.Tk()
+    janela.title("Login Empresarial")
+    janela.geometry("500x400")
+    janela.configure(bg='#0065CC')
+
+    # [Resto do código do login atual]
+    # Usar o mesmo código da janela de login que você já tem
+    # Apenas modificar o título e algumas labels para indicar que é área empresarial
+
+def criar_janela_login_cliente():
+    global janela
+    janela = tk.Tk()
+    janela.title("Login Cliente")
+    janela.geometry("500x400")
+    janela.configure(bg='#0065CC')
+
+    # Similar ao login empresarial, mas redirecionando para a loja
+    nome_loja = tk.Label(janela, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), 
+                        fg='white', bg='#0065CC')
+    nome_loja.pack(pady=(50, 5))
+
+    frame = tk.Frame(janela, bg='white', padx=20, pady=20, borderwidth=2, relief="groove")
+    frame.pack(expand=True)
+
+    # [Adicionar campos de login similares ao original]
+    # Ao fazer login, redirecionar para a loja ao invés do controle de estoque
+
+class LojaCliente:
+    def __init__(self):
+        self.janela = tk.Tk()
+        self.janela.title("Loja TECNOPOINT")
+        self.janela.geometry("800x600")
+        self.janela.configure(bg="#0066CC")
+
+        tk.Label(self.janela, text="Loja TECNOPOINT", 
+                font=("Arial", 16, 'bold'), bg="#0066CC", fg="white").pack(pady=10)
+
+        # Adicionar elementos da loja aqui
+        # Lista de produtos, carrinho de compras, etc.
+
+# Iniciar o programa
+if __name__ == "__main__":
+    selecionar_tipo()

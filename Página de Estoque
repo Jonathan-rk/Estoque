@@ -1,6 +1,21 @@
 import tkinter as tk
 from tkinter import messagebox
 from tkinter import ttk
+from datetime import datetime
+
+class HistoricoMovimentacao:
+    def __init__(self):
+        self.movimentacoes = []
+    
+    def registrar_movimentacao(self, produto, tipo, quantidade, data=None):
+        if data is None:
+            data = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.movimentacoes.append({
+            "data": data,
+            "produto": produto,
+            "tipo": tipo,
+            "quantidade": quantidade
+        })
 
 class ControleEstoque:
     def __init__(self):
@@ -10,8 +25,9 @@ class ControleEstoque:
         self.janela.geometry("700x500")
         self.janela.configure(bg="#0066CC")
 
-        # Lista de produtos
+        # Lista de produtos e histórico
         self.estoque = []
+        self.historico = HistoricoMovimentacao()
 
         tk.Label(self.janela, text="Controle de Estoque - Loja TECNOPOINT", font=("Arial", 16, 'bold'), bg="#0066CC", fg="white").pack(pady=10)
 
@@ -20,9 +36,9 @@ class ControleEstoque:
         self.frame_estoque.pack(pady=10)
 
         # Tabela de produtos
-        self.tabela = ttk.Treeview(self.frame_estoque, columns=("Produto", "Categoria", "Quantidade", "Preço", "Limite Mínimo"), show="headings")
+        self.tabela = ttk.Treeview(self.frame_estoque, columns=("Produto", "Marca", "Quantidade", "Preço", "Limite Mínimo"), show="headings")
         self.tabela.heading("Produto", text="Produto")
-        self.tabela.heading("Categoria", text="Categoria")
+        self.tabela.heading("Marca", text="Marca")
         self.tabela.heading("Quantidade", text="Quantidade")
         self.tabela.heading("Preço", text="Preço (R$)")
         self.tabela.heading("Limite Mínimo", text="Limite Mínimo")
@@ -37,10 +53,51 @@ class ControleEstoque:
         tk.Button(self.botao_frame, text="Atualizar Produto", command=self.abrir_janela_atualizar, bg="white", fg="black").grid(row=0, column=2, padx=5)
         tk.Button(self.botao_frame, text="Excluir Produto", command=self.excluir_produto, bg="white", fg="black").grid(row=0, column=3, padx=5)
         tk.Button(self.botao_frame, text="Relatório de Baixo Estoque", command=self.relatorio_baixo_estoque, bg="white", fg="black").grid(row=0, column=4, padx=5)
+        tk.Button(self.botao_frame, text="Histórico de Movimentações", command=self.mostrar_historico, bg="white", fg="black").grid(row=0, column=5, padx=5)
 
         self.janela.mainloop()
 
-    # Função para adicionar produto
+    def mostrar_historico(self):
+        janela_historico = tk.Toplevel(self.janela)
+        janela_historico.title("Histórico de Movimentações")
+        janela_historico.geometry("800x400")
+        janela_historico.configure(bg="#0066CC")
+
+        frame_tabela = tk.Frame(janela_historico, bg="#0066CC")
+        frame_tabela.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        tabela_historico = ttk.Treeview(
+            frame_tabela,
+            columns=("Data", "Produto", "Tipo", "Quantidade"),
+            show="headings"
+        )
+        
+        tabela_historico.heading("Data", text="Data")
+        tabela_historico.heading("Produto", text="Produto")
+        tabela_historico.heading("Tipo", text="Tipo")
+        tabela_historico.heading("Quantidade", text="Quantidade")
+        
+        tabela_historico.column("Data", width=150)
+        tabela_historico.column("Produto", width=200)
+        tabela_historico.column("Tipo", width=100)
+        tabela_historico.column("Quantidade", width=100)
+
+        scrollbar = ttk.Scrollbar(frame_tabela, orient=tk.VERTICAL, command=tabela_historico.yview)
+        tabela_historico.configure(yscrollcommand=scrollbar.set)
+        
+        tabela_historico.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        for mov in self.historico.movimentacoes:
+            tabela_historico.insert(
+                "",
+                "end",
+                values=(mov["data"], mov["produto"], mov["tipo"], mov["quantidade"])
+            )
+
+    def registrar_movimentacao(self, produto, tipo, quantidade):
+        self.historico.registrar_movimentacao(produto, tipo, quantidade)
+
     def abrir_janela_adicionar(self):
         janela_adicionar = tk.Toplevel(self.janela)
         janela_adicionar.title("Adicionar Produto")
@@ -50,9 +107,9 @@ class ControleEstoque:
         produto_entry = tk.Entry(janela_adicionar)
         produto_entry.grid(row=0, column=1, pady=5)
 
-        tk.Label(janela_adicionar, text="Categoria:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
-        categoria_entry = tk.Entry(janela_adicionar)
-        categoria_entry.grid(row=1, column=1, pady=5)
+        tk.Label(janela_adicionar, text="Marca:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
+        marca_entry = tk.Entry(janela_adicionar)
+        marca_entry.grid(row=1, column=1, pady=5)
 
         tk.Label(janela_adicionar, text="Quantidade:", bg="#0066CC", fg="white").grid(row=2, column=0, pady=5)
         quantidade_entry = tk.Entry(janela_adicionar)
@@ -68,7 +125,7 @@ class ControleEstoque:
 
         def confirmar():
             produto = produto_entry.get()
-            categoria = categoria_entry.get()
+            marca = marca_entry.get()
             try:
                 quantidade = int(quantidade_entry.get())
                 preco = float(preco_entry.get())
@@ -77,7 +134,8 @@ class ControleEstoque:
                 messagebox.showerror("Erro", "Quantidade, preço e limite mínimo devem ser numéricos!")
                 return
 
-            self.estoque.append((produto, categoria, quantidade, preco, limite_minimo))
+            self.estoque.append((produto, marca, quantidade, preco, limite_minimo))
+            self.registrar_movimentacao(produto, "Entrada", quantidade)
             self.atualizar_tabela()
             janela_adicionar.destroy()
 
@@ -101,7 +159,7 @@ class ControleEstoque:
                     break
             if produto_encontrado:
                 relatorio = f"Produto: {produto_encontrado[0]}\n" \
-                            f"Categoria: {produto_encontrado[1]}\n" \
+                            f"Marca: {produto_encontrado[1]}\n" \
                             f"Quantidade: {produto_encontrado[2]}\n" \
                             f"Preço: R${produto_encontrado[3]:.2f}\n" \
                             f"Limite Mínimo: {produto_encontrado[4]}"
@@ -147,10 +205,18 @@ class ControleEstoque:
                     messagebox.showerror("Erro", "Quantidade e preço devem ser numéricos!")
                     return
 
-                produto_atualizado = list(self.estoque[produto_encontrado])
-                produto_atualizado[2] = nova_quantidade  # Atualiza quantidade
-                produto_atualizado[3] = novo_preco  # Atualiza preço
+                produto_atual = self.estoque[produto_encontrado]
+                diferenca_quantidade = nova_quantidade - produto_atual[2]
+                
+                produto_atualizado = list(produto_atual)
+                produto_atualizado[2] = nova_quantidade
+                produto_atualizado[3] = novo_preco
                 self.estoque[produto_encontrado] = tuple(produto_atualizado)
+
+                if diferenca_quantidade > 0:
+                    self.registrar_movimentacao(nome_produto, "Entrada", diferenca_quantidade)
+                elif diferenca_quantidade < 0:
+                    self.registrar_movimentacao(nome_produto, "Saída", abs(diferenca_quantidade))
 
                 self.atualizar_tabela()
                 janela_atualizar.destroy()
@@ -164,6 +230,8 @@ class ControleEstoque:
         item_selecionado = self.tabela.selection()
         if item_selecionado:
             for item in item_selecionado:
+                valores = self.tabela.item(item)['values']
+                self.registrar_movimentacao(valores[0], "Exclusão", valores[2])
                 index = self.tabela.index(item)
                 self.estoque.pop(index)
                 self.tabela.delete(item)
@@ -179,7 +247,6 @@ class ControleEstoque:
             messagebox.showinfo("Relatório de Baixo Estoque", "Nenhum produto com baixo estoque")
 
     def atualizar_tabela(self):
-        # Limpa a tabela e adiciona os produtos atualizados
         for item in self.tabela.get_children():
             self.tabela.delete(item)
         for produto in self.estoque:

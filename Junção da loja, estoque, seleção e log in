@@ -1,0 +1,812 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+from datetime import datetime
+
+# Dicionários para armazenar usuários
+usuarios_cliente = {}
+usuarios_empresa = {}
+
+class HistoricoMovimentacao:
+    def __init__(self):
+        self.movimentacoes = []
+    
+    def registrar_movimentacao(self, produto, tipo, quantidade, data=None):
+        if data is None:
+            data = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.movimentacoes.append({
+            "data": data,
+            "produto": produto,
+            "tipo": tipo,
+            "quantidade": quantidade
+        })
+
+class ControleEstoque:
+    def __init__(self, usuario_logado):
+        # Janela principal
+        self.janela = tk.Tk()
+        self.janela.title(f"Controle de Estoque - {usuario_logado}")
+        self.janela.geometry("700x500")
+        self.janela.configure(bg="#0066CC")
+
+        # Lista de produtos e histórico
+        self.estoque = []
+        self.historico = HistoricoMovimentacao()
+        self.usuario_logado = usuario_logado
+
+        tk.Label(self.janela, text="Controle de Estoque - Loja TECNOPOINT", 
+                 font=("Arial", 16, 'bold'), bg="#0066CC", fg="white").pack(pady=10)
+
+        # Frame para exibir o estoque
+        self.frame_estoque = tk.Frame(self.janela, bg="#0066CC")
+        self.frame_estoque.pack(pady=10)
+
+        # Tabela de produtos
+        self.tabela = ttk.Treeview(self.frame_estoque, columns=("Produto", "Marca", "Quantidade", "Preço", "Limite Mínimo"), show="headings")
+        self.tabela.heading("Produto", text="Produto")
+        self.tabela.heading("Marca", text="Marca")
+        self.tabela.heading("Quantidade", text="Quantidade")
+        self.tabela.heading("Preço", text="Preço (R$)")
+        self.tabela.heading("Limite Mínimo", text="Limite Mínimo")
+        self.tabela.pack()
+
+        # Botões de funcionalidade
+        self.botao_frame = tk.Frame(self.janela, bg="#0066CC")
+        self.botao_frame.pack(pady=10)
+
+        tk.Button(self.botao_frame, text="Adicionar Produto", command=self.abrir_janela_adicionar, bg="white", fg="black").grid(row=0, column=0, padx=5)
+        tk.Button(self.botao_frame, text="Consultar Produto", command=self.abrir_janela_consulta, bg="white", fg="black").grid(row=0, column=1, padx=5)
+        tk.Button(self.botao_frame, text="Atualizar Produto", command=self.abrir_janela_atualizar, bg="white", fg="black").grid(row=0, column=2, padx=5)
+        tk.Button(self.botao_frame, text="Excluir Produto", command=self.excluir_produto, bg="white", fg="black").grid(row=0, column=3, padx=5)
+        tk.Button(self.botao_frame, text="Relatório de Baixo Estoque", command=self.relatorio_baixo_estoque, bg="white", fg="black").grid(row=0, column=4, padx=5)
+        tk.Button(self.botao_frame, text="Histórico de Movimentações", command=self.mostrar_historico, bg="white", fg="black").grid(row=0, column=5, padx=5)
+
+        self.janela.mainloop()
+
+    def mostrar_historico(self):
+        janela_historico = tk.Toplevel(self.janela)
+        janela_historico.title("Histórico de Movimentações")
+        janela_historico.geometry("800x400")
+        janela_historico.configure(bg="#0066CC")
+
+        frame_tabela = tk.Frame(janela_historico, bg="#0066CC")
+        frame_tabela.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        tabela_historico = ttk.Treeview(
+            frame_tabela,
+            columns=("Data", "Produto", "Tipo", "Quantidade"),
+            show="headings"
+        )
+        
+        tabela_historico.heading("Data", text="Data")
+        tabela_historico.heading("Produto", text="Produto")
+        tabela_historico.heading("Tipo", text="Tipo")
+        tabela_historico.heading("Quantidade", text="Quantidade")
+        
+        tabela_historico.column("Data", width=150)
+        tabela_historico.column("Produto", width=200)
+        tabela_historico.column("Tipo", width=100)
+        tabela_historico.column("Quantidade", width=100)
+
+        scrollbar = ttk.Scrollbar(frame_tabela, orient=tk.VERTICAL, command=tabela_historico.yview)
+        tabela_historico.configure(yscrollcommand=scrollbar.set)
+        
+        tabela_historico.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        for mov in self.historico.movimentacoes:
+            tabela_historico.insert(
+                "",
+                "end",
+                values=(mov["data"], mov["produto"], mov["tipo"], mov["quantidade"])
+            )
+
+    def registrar_movimentacao(self, produto, tipo, quantidade):
+        self.historico.registrar_movimentacao(produto, tipo, quantidade)
+
+    def abrir_janela_adicionar(self):
+        janela_adicionar = tk.Toplevel(self.janela)
+        janela_adicionar.title("Adicionar Produto")
+        janela_adicionar.configure(bg="#0066CC")
+
+        tk.Label(janela_adicionar, text="Produto:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        produto_entry = tk.Entry(janela_adicionar)
+        produto_entry.grid(row=0, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Marca:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
+        marca_entry = tk.Entry(janela_adicionar)
+        marca_entry.grid(row=1, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Quantidade:", bg="#0066CC", fg="white").grid(row=2, column=0, pady=5)
+        quantidade_entry = tk.Entry(janela_adicionar)
+        quantidade_entry.grid(row=2, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Preço:", bg="#0066CC", fg="white").grid(row=3, column=0, pady=5)
+        preco_entry = tk.Entry(janela_adicionar)
+        preco_entry.grid(row=3, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Limite Mínimo:", bg="#0066CC", fg="white").grid(row=4, column=0, pady=5)
+        limite_minimo_entry = tk.Entry(janela_adicionar)
+        limite_minimo_entry.grid(row=4, column=1, pady=5)
+
+        def confirmar():
+            produto = produto_entry.get()
+            marca = marca_entry.get()
+            try:
+                quantidade = int(quantidade_entry.get())
+                preco = float(preco_entry.get())
+                limite_minimo = int(limite_minimo_entry.get())
+            except ValueError:
+                messagebox.showerror("Erro", "Quantidade, preço e limite mínimo devem ser numéricos!")
+                return
+
+            self.estoque.append((produto, marca, quantidade, preco, limite_minimo))
+            self.registrar_movimentacao(produto, "Entrada", quantidade)
+            self.atualizar_tabela()
+            janela_adicionar.destroy()
+
+        tk.Button(janela_adicionar, text="Cadastrar", command=confirmar, bg="white", fg="black").grid(row=5, column=0, columnspan=2, pady=10)
+
+    def abrir_janela_consulta(self):
+        janela_consulta = tk.Toplevel(self.janela)
+        janela_consulta.title("Consultar Produto")
+        janela_consulta.configure(bg="#0066CC")
+
+        tk.Label(janela_consulta, text="Produto a consultar:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        produto_entry = tk.Entry(janela_consulta)
+        produto_entry.grid(row=0, column=1, pady=5)
+
+        def consultar():
+            nome_produto = produto_entry.get()
+            produto_encontrado = None
+            for produto in self.estoque:
+                if produto[0].lower() == nome_produto.lower():
+                    produto_encontrado = produto
+                    break
+            if produto_encontrado:
+                relatorio = f"Produto: {produto_encontrado[0]}\n" \
+                            f"Marca: {produto_encontrado[1]}\n" \
+                            f"Quantidade: {produto_encontrado[2]}\n" \
+                            f"Preço: R${produto_encontrado[3]:.2f}\n" \
+                            f"Limite Mínimo: {produto_encontrado[4]}"
+                messagebox.showinfo("Produto Encontrado", relatorio)
+            else:
+                messagebox.showerror("Erro", "Produto não encontrado.")
+
+        tk.Button(janela_consulta, text="Consultar", command=consultar, bg="white", fg="black").grid(row=1, column=0, columnspan=2, pady=10)
+
+    def abrir_janela_atualizar(self):
+        janela_atualizar = tk.Toplevel(self.janela)
+        janela_atualizar.title("Atualizar Produto")
+        janela_atualizar.configure(bg="#0066CC")
+
+        tk.Label(janela_atualizar, text="Produto a atualizar:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        produto_entry = tk.Entry(janela_atualizar)
+        produto_entry.grid(row=0, column=1, pady=5)
+
+        tk.Label(janela_atualizar, text="Nova Quantidade:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
+        nova_quantidade_entry = tk.Entry(janela_atualizar)
+        nova_quantidade_entry.grid(row=1, column=1, pady=5)
+
+        tk.Label(janela_atualizar, text="Novo Preço:", bg="#0066CC", fg="white").grid(row=2, column=0, pady=5)
+        novo_preco_entry = tk.Entry(janela_atualizar)
+        novo_preco_entry.grid(row=2, column=1, pady=5)
+
+        def atualizar():
+            nome_produto = produto_entry.get()
+            nova_quantidade = nova_quantidade_entry.get()
+            novo_preco = novo_preco_entry.get()
+
+            produto_encontrado = None
+            for i, produto in enumerate(self.estoque):
+                if produto[0].lower() == nome_produto.lower():
+                    produto_encontrado = i
+                    break
+
+            if produto_encontrado is not None:
+                try:
+                    nova_quantidade = int(nova_quantidade)
+                    novo_preco = float(novo_preco)
+                except ValueError:
+                    messagebox.showerror("Erro", "Quantidade e preço devem ser numéricos!")
+                    return
+
+                produto_atual = self.estoque[produto_encontrado]
+                diferenca_quantidade = nova_quantidade - produto_atual[2]
+                
+                produto_atualizado = list(produto_atual)
+                produto_atualizado[2] = nova_quantidade
+                produto_atualizado[3] = novo_preco
+                self.estoque[produto_encontrado] = tuple(produto_atualizado)
+
+                if diferenca_quantidade > 0:
+                    self.registrar_movimentacao(nome_produto, "Entrada", diferenca_quantidade)
+                elif diferenca_quantidade < 0:
+                    self.registrar_movimentacao(nome_produto, "Saída", abs(diferenca_quantidade))
+
+                self.atualizar_tabela()
+                janela_atualizar.destroy()
+                messagebox.showinfo("Produto Atualizado", "Produto atualizado com sucesso!")
+            else:
+                messagebox.showerror("Erro", "Produto não encontrado.")
+
+        tk.Button(janela_atualizar, text="Atualizar", command=atualizar, bg="white", fg="black").grid(row=3, column=0, columnspan=2, pady=10)
+
+    def excluir_produto(self):
+        item_selecionado = self.tabela.selection()
+        if item_selecionado:
+            for item in item_selecionado:
+                valores = self.tabela.item(item)['values']
+                self.registrar_movimentacao(valores[0], "Exclusão", valores[2])
+                index = self.tabela.index(item)
+                self.estoque.pop(index)
+                self.tabela.delete(item)
+        else:
+            messagebox.showerror("Erro", "Nenhum produto selecionado para exclusão.")
+
+    def relatorio_baixo_estoque(self):
+        baixo_estoque = [produto for produto in self.estoque if produto[2] <= produto[4]]
+        if baixo_estoque:
+            relatorio = "\n".join([f"{p[0]} - Quantidade: {p[2]} (Limite Mínimo: {p[4]})" for p in baixo_estoque])
+            messagebox.showinfo("Relatório de Baixo Estoque", relatorio)
+        else:
+            messagebox.showinfo("Relatório de Baixo Estoque", "Nenhum produto com baixo estoque")
+
+    def atualizar_tabela(self):
+        for item in self.tabela.get_children():
+            self.tabela.delete(item)
+        for produto in self.estoque:
+            self.tabela.insert("", "end", values=produto)
+
+# Fim Estoque
+
+# ínicio Loja
+class Estoque:
+    def __init__(self):
+        self.produtos = {
+            1: {
+                'nome': 'Notebook',
+                'marcas': {
+                    'Dell': 4500,
+                    'Lenovo': 3800,
+                    'HP': 4200,
+                    'Acer': 3500
+                }
+            },
+            2: {
+                'nome': 'Celular',
+                'marcas': {
+                    'Samsung': 2500,
+                    'Apple': 5000,
+                    'Xiaomi': 1800,
+                    'Motorola': 2000
+                }
+            },
+            3: {
+                'nome': 'Headphone',
+                'marcas': {
+                    'JBL': 400,
+                    'Sony': 500,
+                    'Razer': 600,
+                    'HyperX': 450
+                }
+            },
+            4: {
+                'nome': 'Smart TV',
+                'marcas': {
+                    'Samsung': 3000,
+                    'LG': 2800,
+                    'Sony': 3500,
+                    'TCL': 2200
+                }
+            },
+            5: {
+                'nome': 'Tablet',
+                'marcas': {
+                    'Apple': 4500,
+                    'Samsung': 2800,
+                    'Lenovo': 1800,
+                    'Xiaomi': 1500
+                }
+            }
+        }
+
+    def consultar_produto(self, produto_id):
+        return self.produtos.get(produto_id)
+
+class Carrinho:
+    def __init__(self):
+        self.itens = {}
+        
+    def adicionar_item(self, produto_id, produto, marca):
+        if produto_id in self.itens:
+            self.itens[produto_id]['quantidade'] += 1
+        else:
+            self.itens[produto_id] = {
+                'nome': produto['nome'],
+                'marca': marca,
+                'preco': produto['marcas'][marca],
+                'quantidade': 1
+            }
+            
+    def remover_item(self, produto_id):
+        if produto_id in self.itens:
+            del self.itens[produto_id]
+            
+    def calcular_total(self):
+        return sum(item['preco'] * item['quantidade'] for item in self.itens.values())
+    
+    def limpar(self):
+        self.itens.clear()
+
+class LojaEletronicosApp:
+    def __init__(self, root, estoque):
+        self.estoque = estoque
+        self.carrinho = Carrinho()
+        self.root = root
+        self.root.title("TECNOPOINT")
+        self.carrinho_visivel = False
+
+        # Configurar janela
+        self.root.geometry("1000x600")
+        self.root.configure(bg="#0065CC")
+
+        # Criar menu superior
+        self.create_menu()
+
+        # Frame principal
+        self.main_frame = ttk.Frame(root, padding="10")
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Frame esquerdo (produtos)
+        self.left_frame = ttk.Frame(self.main_frame)
+        self.left_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Frame direito (carrinho)
+        self.right_frame = ttk.Frame(self.main_frame)
+        
+        # Configurar lado esquerdo (produtos)
+        self.setup_produtos_frame()
+
+        # Configurar lado direito (carrinho)
+        self.setup_carrinho_frame()
+
+        # Botão do carrinho
+        self.setup_cart_button()
+
+        # Estilo
+        self.setup_styles()
+
+        # Inicialmente esconde o carrinho
+        self.right_frame.pack_forget()
+
+    def setup_cart_button(self):
+        cart_frame = ttk.Frame(self.left_frame)
+        cart_frame.pack(anchor='ne', padx=10, pady=5)
+        
+        cart_button = ttk.Button(
+            cart_frame, 
+            text="🛒", 
+            command=self.toggle_carrinho,
+            style='Cart.TButton'
+        )
+        cart_button.pack(side=tk.RIGHT)
+
+        # Contador de itens
+        self.cart_count_label = ttk.Label(
+            cart_frame, 
+            text="0",
+            style='CartCount.TLabel'
+        )
+        self.cart_count_label.pack(side=tk.RIGHT, padx=5)
+
+    def toggle_carrinho(self):
+        if self.carrinho_visivel:
+            self.right_frame.pack_forget()
+        else:
+            self.right_frame.pack(side=tk.RIGHT, fill=tk.BOTH)
+        self.carrinho_visivel = not self.carrinho_visivel
+
+    def create_menu(self):
+        menu_bar = tk.Menu(self.root)
+        self.root.config(menu=menu_bar)
+
+        file_menu = tk.Menu(menu_bar, tearoff=0)
+        menu_bar.add_cascade(label="Arquivo", menu=file_menu)
+        file_menu.add_command(label="Sair", command=self.root.quit)
+
+        help_menu = tk.Menu(menu_bar, tearoff=0)
+        menu_bar.add_cascade(label="Ajuda", menu=help_menu)
+        help_menu.add_command(label="Sobre", command=self.mostrar_sobre)
+
+    def setup_produtos_frame(self):
+        # Título
+        titulo_label = tk.Label(
+            self.left_frame, 
+            text="TECNOPOINT", 
+            font=('Cooper Black', 24, 'bold'), 
+            fg='white', 
+            bg='#0065CC'
+        )
+        titulo_label.pack(pady=10)
+
+        # Frame para a lista de produtos
+        produtos_frame = ttk.LabelFrame(
+            self.left_frame, 
+            text="Produtos Disponíveis", 
+            padding="5"
+        )
+        produtos_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        # Criar Treeview
+        self.tree = ttk.Treeview(
+            produtos_frame, 
+            columns=('ID', 'Nome', 'Marca', 'Preço'),
+            show='headings'
+        )
+
+        # Configurar colunas
+        self.tree.heading('ID', text='ID')
+        self.tree.heading('Nome', text='Nome')
+        self.tree.heading('Marca', text='Marca')
+        self.tree.heading('Preço', text='Preço (R$)')
+
+        self.tree.column('ID', width=50)
+        self.tree.column('Nome', width=150)
+        self.tree.column('Marca', width=150)
+        self.tree.column('Preço', width=100)
+
+        scrollbar = ttk.Scrollbar(
+            produtos_frame, 
+            orient=tk.VERTICAL, 
+            command=self.tree.yview
+        )
+        self.tree.configure(yscrollcommand=scrollbar.set)
+
+        self.tree.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        # Frame para adicionar ao carrinho
+        compra_frame = ttk.LabelFrame(
+            self.left_frame, 
+            text="Adicionar ao Carrinho", 
+            padding="5"
+        )
+        compra_frame.pack(fill=tk.X, padx=5, pady=5)
+
+        ttk.Label(compra_frame, text="ID do Produto:", background="white", foreground="black").grid(row=0, column=0, padx=5, pady=5)
+        self.produto_id_entry = ttk.Entry(compra_frame, width=10)
+        self.produto_id_entry.grid(row=0, column=1, padx=5, pady=5)
+
+        ttk.Label(compra_frame, text="Marca:", background="white", foreground="black").grid(row=0, column=2, padx=5, pady=5)
+        self.marca_combobox = ttk.Combobox(compra_frame, width=15)
+        self.marca_combobox.grid(row=0, column=3, padx=5, pady=5)
+
+        ttk.Button(
+            compra_frame, 
+            text="Adicionar ao Carrinho", 
+            command=self.adicionar_ao_carrinho
+        ).grid(row=0, column=4, padx=5, pady=5)
+
+        # Bind para atualizar marcas quando um produto é selecionado
+        self.produto_id_entry.bind('<KeyRelease>', self.atualizar_marcas)
+
+        # Atualizar produtos
+        self.atualizar_produtos()
+
+    def atualizar_marcas(self, event=None):
+        try:
+            produto_id = int(self.produto_id_entry.get())
+            produto = self.estoque.consultar_produto(produto_id)
+            if produto:
+                marcas = list(produto['marcas'].keys())
+                self.marca_combobox['values'] = marcas
+                if marcas:
+                    self.marca_combobox.set(marcas[0])
+            else:
+                self.marca_combobox['values'] = []
+                self.marca_combobox.set('')
+        except ValueError:
+            self.marca_combobox['values'] = []
+            self.marca_combobox.set('')
+
+    def setup_carrinho_frame(self):
+        carrinho_frame = ttk.LabelFrame(
+            self.right_frame, 
+            text="Carrinho de Compras", 
+            padding="5"
+        )
+        carrinho_frame.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+        self.carrinho_tree = ttk.Treeview(
+            carrinho_frame, 
+            columns=('ID', 'Nome', 'Marca', 'Preço', 'Qtd', 'Subtotal'),
+            show='headings'
+        )
+
+        self.carrinho_tree.heading('ID', text='ID')
+        self.carrinho_tree.heading('Nome', text='Nome')
+        self.carrinho_tree.heading('Marca', text='Marca')
+        self.carrinho_tree.heading('Preço', text='Preço (R$)')
+        self.carrinho_tree.heading('Qtd', text='Qtd')
+        self.carrinho_tree.heading('Subtotal', text='Subtotal')
+
+        self.carrinho_tree.column('ID', width=50)
+        self.carrinho_tree.column('Nome', width=150)
+        self.carrinho_tree.column('Marca', width=100)
+        self.carrinho_tree.column('Preço', width=100)
+        self.carrinho_tree.column('Qtd', width=50)
+        self.carrinho_tree.column('Subtotal', width=100)
+
+        self.carrinho_tree.pack(fill=tk.BOTH, expand=True)
+
+        total_frame = ttk.Frame(self.right_frame)
+        total_frame.pack(fill=tk.X, padx=5, pady=5)
+
+        self.total_label = ttk.Label(total_frame, text="Total: R$ 0.00")
+        self.total_label.pack(side=tk.LEFT, padx=5)
+
+        ttk.Button(
+            total_frame, 
+            text="Remover Item", 
+            command=self.remover_do_carrinho
+        ).pack(side=tk.RIGHT, padx=5)
+        
+        ttk.Button(
+            total_frame, 
+            text="Finalizar Compra", 
+            command=self.finalizar_compra
+        ).pack(side=tk.RIGHT, padx=5)
+
+    def setup_styles(self):
+        style = ttk.Style()
+        style.configure("TFrame", background="#0065CC")
+        style.configure("TLabel", background="#0065CC", foreground="white")
+        style.configure("TButton", padding=5)
+        style.configure("Cart.TButton", font=('TkDefaultFont', 12))
+        style.configure("CartCount.TLabel", 
+                       background='white', 
+                       foreground='black',
+                       padding=2)
+        style.configure("Treeview", rowheight=25)
+        style.configure("Treeview.Heading", font=('Helvetica', 10, 'bold'))
+
+    def atualizar_contador_carrinho(self):
+        total_itens = sum(item['quantidade'] for item in self.carrinho.itens.values())
+        self.cart_count_label.config(text=str(total_itens))
+
+    def adicionar_ao_carrinho(self):
+        try:
+            produto_id = int(self.produto_id_entry.get())
+            marca = self.marca_combobox.get()
+            produto = self.estoque.consultar_produto(produto_id)
+
+            if not produto:
+                messagebox.showerror("Erro", "ID do produto inválido.")
+                return
+
+            if not marca or marca not in produto['marcas']:
+                messagebox.showerror("Erro", "Selecione uma marca válida.")
+                return
+
+            self.carrinho.adicionar_item(produto_id, produto, marca)
+            self.atualizar_carrinho_view()
+            self.atualizar_contador_carrinho()
+            self.produto_id_entry.delete(0, tk.END)
+            self.marca_combobox.set('')
+
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira valores válidos.")
+
+    def remover_do_carrinho(self):
+        selected_item = self.carrinho_tree.selection()
+        if not selected_item:
+            messagebox.showwarning("Aviso", "Selecione um item para remover.")
+            return
+
+        item = self.carrinho_tree.item(selected_item[0])
+        produto_id = int(item['values'][0])
+        self.carrinho.remover_item(produto_id)
+        self.atualizar_carrinho_view()
+        self.atualizar_contador_carrinho()
+
+    def finalizar_compra(self):
+        if not self.carrinho.itens:
+            messagebox.showwarning("Aviso", "Carrinho vazio!")
+            return
+
+        total = self.carrinho.calcular_total()
+        messagebox.showinfo("Compra Finalizada", 
+                          f"Compra realizada com sucesso!\nTotal: R$ {total:.2f}")
+
+        self.carrinho.limpar()
+        self.atualizar_carrinho_view()
+        self.atualizar_produtos()
+        self.atualizar_contador_carrinho()
+
+    def atualizar_carrinho_view(self):
+        for item in self.carrinho_tree.get_children():
+            self.carrinho_tree.delete(item)
+
+        for produto_id, item in self.carrinho.itens.items():
+            subtotal = item['preco'] * item['quantidade']
+            self.carrinho_tree.insert('', 'end', values=(
+                produto_id,
+                item['nome'],
+                item['marca'],
+                f"{item['preco']:.2f}",
+                item['quantidade'],
+                f"{subtotal:.2f}"
+            ))
+
+        total = self.carrinho.calcular_total()
+        self.total_label.config(text=f"Total: R$ {total:.2f}")
+
+    def atualizar_produtos(self):
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+
+        for produto_id, dados in self.estoque.produtos.items():
+            for marca, preco in dados['marcas'].items():
+                self.tree.insert('', 'end', values=(
+                    produto_id,
+                    dados['nome'],
+                    marca,
+                    f"{preco:.2f}"
+                ))
+
+    def mostrar_sobre(self):
+        messagebox.showinfo(
+            "Sobre", 
+            "TECNOPOINT - Sua Loja de Eletrônicos\n"
+            "Versão 1.0\n"
+            "© 2024 TECNOPOINT"
+        )
+
+# Fim Loja
+
+# ínicio doLogin
+def fazer_login_empresa():
+    usuario = nome_usuario.get()
+    senha = senha_entry.get()
+    
+    if usuario in usuarios_empresa and usuarios_empresa[usuario] == senha:
+        messagebox.showinfo("Login", f"Bem-vindo, {usuario}!")
+        janela.destroy()  # Fecha a janela de login
+        ControleEstoque(usuario)  # Abre o sistema de estoque
+    else:
+        messagebox.showerror("Erro", "Nome de usuário ou senha incorretos. Tente novamente.")
+
+def fazer_login_cliente():
+    usuario = nome_usuario.get()
+    senha = senha_entry.get()
+    
+    if usuario in usuarios_cliente and usuarios_cliente[usuario] == senha:
+        messagebox.showinfo("Login", f"Bem-vindo, {usuario}!")
+        janela.destroy()  # Fecha a janela de login
+        LojaEletronicosApp(usuario)  # Abre o sistema da loja
+    else:
+        messagebox.showerror("Erro", "Nome de usuário ou senha incorretos. Tente novamente.")
+
+def criar_conta(tipo_usuario):
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Criar Conta")
+    nova_janela.geometry("300x300")
+
+    tk.Label(nova_janela, text="Informe um nome de usuário:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_usuario = tk.Entry(nova_janela, width=30)
+    entrada_usuario.pack(pady=5)
+
+    tk.Label(nova_janela, text="Informe uma senha:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_senha = tk.Entry(nova_janela, show='*', width=30)
+    entrada_senha.pack(pady=5)
+
+    def salvar_conta():
+        usuario = entrada_usuario.get()
+        senha = entrada_senha.get()
+        if tipo_usuario == "empresa":
+            if usuario in usuarios_empresa:
+                messagebox.showerror("Erro", "Usuário já existe. Tente outro nome.")
+            else:
+                usuarios_empresa[usuario] = senha
+                messagebox.showinfo("Sucesso", "Conta empresarial criada com sucesso!")
+                nova_janela.destroy()
+        else:
+            if usuario in usuarios_cliente:
+                messagebox.showerror("Erro", "Usuário já existe. Tente outro nome.")
+            else:
+                usuarios_cliente[usuario] = senha
+                messagebox.showinfo("Sucesso", "Conta de cliente criada com sucesso!")
+                nova_janela.destroy()
+
+    tk.Button(nova_janela, text="Criar", command=salvar_conta).pack(pady=10)
+
+def abrir_recuperacao_senha():
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Recuperação de Senha")
+    nova_janela.geometry("300x200")
+
+    tk.Label(nova_janela, text="Digite seu e-mail para recuperação:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_email = tk.Entry(nova_janela, width=30)
+    entrada_email.pack(pady=5)
+
+    tk.Button(nova_janela, text="Enviar", command=lambda: print("E-mail enviado para:", entrada_email.get())).pack(pady=10)
+
+def criar_janela_login(tipo_usuario):
+    global janela, nome_usuario, senha_entry
+    janela = tk.Tk()
+    janela.title(f"Login - {'Empresarial' if tipo_usuario == 'empresa' else 'Cliente'}")
+    janela.geometry("500x400")
+    janela.configure(bg='#0065CC')
+
+    nome_loja = tk.Label(janela, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), 
+                        fg='white', bg='#0065CC')
+    nome_loja.pack(pady=(50, 5))
+
+    frame = tk.Frame(janela, bg='white', padx=20, pady=20, borderwidth=2, relief="groove")
+    frame.pack(expand=True)
+
+    mensagem = tk.Label(frame, text="Nome de usuário", font=('Arial', 9, 'bold'), 
+                       fg='black', bg='white', width=25, height=1)
+    mensagem.grid(row=0, column=0, pady=(0, 5))
+
+    nome_usuario = tk.Entry(frame, width=30, bg='white')
+    nome_usuario.grid(row=1, column=0, pady=(0, 10))
+
+    mensagem2 = tk.Label(frame, text="Digite sua senha", font=('Arial', 9, 'bold'), 
+                        fg='black', bg='white', width=25, height=1)
+    mensagem2.grid(row=2, column=0, pady=(0, 5))
+
+    senha_entry = tk.Entry(frame, show='*', width=30, bg='white')
+    senha_entry.grid(row=3, column=0, pady=(0, 10))
+
+    botao = tk.Button(frame, text="Entrar", width=10,
+                     command=fazer_login_empresa if tipo_usuario == 'empresa' else fazer_login_cliente)
+    botao.grid(row=4, column=0, pady=(10, 5))
+
+    menu_opcoes = tk.Menubutton(frame, text="Mais...", relief="raised", fg='black', bg='white')
+    menu_opcoes.menu = tk.Menu(menu_opcoes, tearoff=0)
+    menu_opcoes["menu"] = menu_opcoes.menu
+
+    menu_opcoes.menu.add_command(label="Criar conta", 
+                                command=lambda: criar_conta(tipo_usuario))
+    menu_opcoes.menu.add_command(label="Esqueci minha senha", 
+                                command=abrir_recuperacao_senha)
+
+    menu_opcoes.grid(row=5, column=0, pady=(5, 0))
+
+    janela.mainloop()
+
+def selecionar_tipo():
+    janela_selecao = tk.Tk()
+    janela_selecao.title("TECNOPOINT - Selecione o tipo de acesso")
+    janela_selecao.geometry("400x300")
+    janela_selecao.configure(bg='#0065CC')
+
+    tk.Label(janela_selecao, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), 
+            fg='white', bg='#0065CC').pack(pady=(30,20))
+
+    tk.Label(janela_selecao, text="Selecione o tipo de acesso:", 
+            font=('Arial', 12, 'bold'), fg='white', bg='#0065CC').pack(pady=10)
+
+    def abrir_login_empresa():
+        janela_selecao.destroy()
+        criar_janela_login('empresa')
+
+    def abrir_login_cliente():
+        janela_selecao.destroy()
+        criar_janela_login('cliente')
+
+    tk.Button(janela_selecao, text="Empresa", width=20, height=2,
+              command=abrir_login_empresa).pack(pady=10)
+    tk.Button(janela_selecao, text="Cliente", width=20, height=2,
+              command=abrir_login_cliente).pack(pady=10)
+
+    janela_selecao.mainloop()
+
+if __name__ == "__main__":
+    selecionar_tipo()
+    root = tk.Tk()
+    estoque = Estoque()
+    app = LojaEletronicosApp(root, estoque)
+    root.mainloop()

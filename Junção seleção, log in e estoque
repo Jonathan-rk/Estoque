@@ -1,0 +1,400 @@
+import tkinter as tk
+from tkinter import messagebox
+from tkinter import ttk
+from datetime import datetime
+
+# Dicionários para armazenar usuários
+usuarios_cliente = {}
+usuarios_empresa = {}
+
+class HistoricoMovimentacao:
+    def __init__(self):
+        self.movimentacoes = []
+    
+    def registrar_movimentacao(self, produto, tipo, quantidade, data=None):
+        if data is None:
+            data = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+        self.movimentacoes.append({
+            "data": data,
+            "produto": produto,
+            "tipo": tipo,
+            "quantidade": quantidade
+        })
+
+class ControleEstoque:
+    def __init__(self, usuario_logado):
+        # Janela principal
+        self.janela = tk.Tk()
+        self.janela.title(f"Controle de Estoque - {usuario_logado}")
+        self.janela.geometry("700x500")
+        self.janela.configure(bg="#0066CC")
+
+        # Lista de produtos e histórico
+        self.estoque = []
+        self.historico = HistoricoMovimentacao()
+        self.usuario_logado = usuario_logado
+
+        tk.Label(self.janela, text="Controle de Estoque - Loja TECNOPOINT", 
+                 font=("Arial", 16, 'bold'), bg="#0066CC", fg="white").pack(pady=10)
+
+        # Frame para exibir o estoque
+        self.frame_estoque = tk.Frame(self.janela, bg="#0066CC")
+        self.frame_estoque.pack(pady=10)
+
+        # Tabela de produtos
+        self.tabela = ttk.Treeview(self.frame_estoque, columns=("Produto", "Marca", "Quantidade", "Preço", "Limite Mínimo"), show="headings")
+        self.tabela.heading("Produto", text="Produto")
+        self.tabela.heading("Marca", text="Marca")
+        self.tabela.heading("Quantidade", text="Quantidade")
+        self.tabela.heading("Preço", text="Preço (R$)")
+        self.tabela.heading("Limite Mínimo", text="Limite Mínimo")
+        self.tabela.pack()
+
+        # Botões de funcionalidade
+        self.botao_frame = tk.Frame(self.janela, bg="#0066CC")
+        self.botao_frame.pack(pady=10)
+
+        tk.Button(self.botao_frame, text="Adicionar Produto", command=self.abrir_janela_adicionar, bg="white", fg="black").grid(row=0, column=0, padx=5)
+        tk.Button(self.botao_frame, text="Consultar Produto", command=self.abrir_janela_consulta, bg="white", fg="black").grid(row=0, column=1, padx=5)
+        tk.Button(self.botao_frame, text="Atualizar Produto", command=self.abrir_janela_atualizar, bg="white", fg="black").grid(row=0, column=2, padx=5)
+        tk.Button(self.botao_frame, text="Excluir Produto", command=self.excluir_produto, bg="white", fg="black").grid(row=0, column=3, padx=5)
+        tk.Button(self.botao_frame, text="Relatório de Baixo Estoque", command=self.relatorio_baixo_estoque, bg="white", fg="black").grid(row=0, column=4, padx=5)
+        tk.Button(self.botao_frame, text="Histórico de Movimentações", command=self.mostrar_historico, bg="white", fg="black").grid(row=0, column=5, padx=5)
+
+        self.janela.mainloop()
+
+    def mostrar_historico(self):
+        janela_historico = tk.Toplevel(self.janela)
+        janela_historico.title("Histórico de Movimentações")
+        janela_historico.geometry("800x400")
+        janela_historico.configure(bg="#0066CC")
+
+        frame_tabela = tk.Frame(janela_historico, bg="#0066CC")
+        frame_tabela.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
+
+        tabela_historico = ttk.Treeview(
+            frame_tabela,
+            columns=("Data", "Produto", "Tipo", "Quantidade"),
+            show="headings"
+        )
+        
+        tabela_historico.heading("Data", text="Data")
+        tabela_historico.heading("Produto", text="Produto")
+        tabela_historico.heading("Tipo", text="Tipo")
+        tabela_historico.heading("Quantidade", text="Quantidade")
+        
+        tabela_historico.column("Data", width=150)
+        tabela_historico.column("Produto", width=200)
+        tabela_historico.column("Tipo", width=100)
+        tabela_historico.column("Quantidade", width=100)
+
+        scrollbar = ttk.Scrollbar(frame_tabela, orient=tk.VERTICAL, command=tabela_historico.yview)
+        tabela_historico.configure(yscrollcommand=scrollbar.set)
+        
+        tabela_historico.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        for mov in self.historico.movimentacoes:
+            tabela_historico.insert(
+                "",
+                "end",
+                values=(mov["data"], mov["produto"], mov["tipo"], mov["quantidade"])
+            )
+
+    def registrar_movimentacao(self, produto, tipo, quantidade):
+        self.historico.registrar_movimentacao(produto, tipo, quantidade)
+
+    def abrir_janela_adicionar(self):
+        janela_adicionar = tk.Toplevel(self.janela)
+        janela_adicionar.title("Adicionar Produto")
+        janela_adicionar.configure(bg="#0066CC")
+
+        tk.Label(janela_adicionar, text="Produto:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        produto_entry = tk.Entry(janela_adicionar)
+        produto_entry.grid(row=0, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Marca:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
+        marca_entry = tk.Entry(janela_adicionar)
+        marca_entry.grid(row=1, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Quantidade:", bg="#0066CC", fg="white").grid(row=2, column=0, pady=5)
+        quantidade_entry = tk.Entry(janela_adicionar)
+        quantidade_entry.grid(row=2, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Preço:", bg="#0066CC", fg="white").grid(row=3, column=0, pady=5)
+        preco_entry = tk.Entry(janela_adicionar)
+        preco_entry.grid(row=3, column=1, pady=5)
+
+        tk.Label(janela_adicionar, text="Limite Mínimo:", bg="#0066CC", fg="white").grid(row=4, column=0, pady=5)
+        limite_minimo_entry = tk.Entry(janela_adicionar)
+        limite_minimo_entry.grid(row=4, column=1, pady=5)
+
+        def confirmar():
+            produto = produto_entry.get()
+            marca = marca_entry.get()
+            try:
+                quantidade = int(quantidade_entry.get())
+                preco = float(preco_entry.get())
+                limite_minimo = int(limite_minimo_entry.get())
+            except ValueError:
+                messagebox.showerror("Erro", "Quantidade, preço e limite mínimo devem ser numéricos!")
+                return
+
+            self.estoque.append((produto, marca, quantidade, preco, limite_minimo))
+            self.registrar_movimentacao(produto, "Entrada", quantidade)
+            self.atualizar_tabela()
+            janela_adicionar.destroy()
+
+        tk.Button(janela_adicionar, text="Cadastrar", command=confirmar, bg="white", fg="black").grid(row=5, column=0, columnspan=2, pady=10)
+
+    def abrir_janela_consulta(self):
+        janela_consulta = tk.Toplevel(self.janela)
+        janela_consulta.title("Consultar Produto")
+        janela_consulta.configure(bg="#0066CC")
+
+        tk.Label(janela_consulta, text="Produto a consultar:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        produto_entry = tk.Entry(janela_consulta)
+        produto_entry.grid(row=0, column=1, pady=5)
+
+        def consultar():
+            nome_produto = produto_entry.get()
+            produto_encontrado = None
+            for produto in self.estoque:
+                if produto[0].lower() == nome_produto.lower():
+                    produto_encontrado = produto
+                    break
+            if produto_encontrado:
+                relatorio = f"Produto: {produto_encontrado[0]}\n" \
+                            f"Marca: {produto_encontrado[1]}\n" \
+                            f"Quantidade: {produto_encontrado[2]}\n" \
+                            f"Preço: R${produto_encontrado[3]:.2f}\n" \
+                            f"Limite Mínimo: {produto_encontrado[4]}"
+                messagebox.showinfo("Produto Encontrado", relatorio)
+            else:
+                messagebox.showerror("Erro", "Produto não encontrado.")
+
+        tk.Button(janela_consulta, text="Consultar", command=consultar, bg="white", fg="black").grid(row=1, column=0, columnspan=2, pady=10)
+
+    def abrir_janela_atualizar(self):
+        janela_atualizar = tk.Toplevel(self.janela)
+        janela_atualizar.title("Atualizar Produto")
+        janela_atualizar.configure(bg="#0066CC")
+
+        tk.Label(janela_atualizar, text="Produto a atualizar:", bg="#0066CC", fg="white").grid(row=0, column=0, pady=5)
+        produto_entry = tk.Entry(janela_atualizar)
+        produto_entry.grid(row=0, column=1, pady=5)
+
+        tk.Label(janela_atualizar, text="Nova Quantidade:", bg="#0066CC", fg="white").grid(row=1, column=0, pady=5)
+        nova_quantidade_entry = tk.Entry(janela_atualizar)
+        nova_quantidade_entry.grid(row=1, column=1, pady=5)
+
+        tk.Label(janela_atualizar, text="Novo Preço:", bg="#0066CC", fg="white").grid(row=2, column=0, pady=5)
+        novo_preco_entry = tk.Entry(janela_atualizar)
+        novo_preco_entry.grid(row=2, column=1, pady=5)
+
+        def atualizar():
+            nome_produto = produto_entry.get()
+            nova_quantidade = nova_quantidade_entry.get()
+            novo_preco = novo_preco_entry.get()
+
+            produto_encontrado = None
+            for i, produto in enumerate(self.estoque):
+                if produto[0].lower() == nome_produto.lower():
+                    produto_encontrado = i
+                    break
+
+            if produto_encontrado is not None:
+                try:
+                    nova_quantidade = int(nova_quantidade)
+                    novo_preco = float(novo_preco)
+                except ValueError:
+                    messagebox.showerror("Erro", "Quantidade e preço devem ser numéricos!")
+                    return
+
+                produto_atual = self.estoque[produto_encontrado]
+                diferenca_quantidade = nova_quantidade - produto_atual[2]
+                
+                produto_atualizado = list(produto_atual)
+                produto_atualizado[2] = nova_quantidade
+                produto_atualizado[3] = novo_preco
+                self.estoque[produto_encontrado] = tuple(produto_atualizado)
+
+                if diferenca_quantidade > 0:
+                    self.registrar_movimentacao(nome_produto, "Entrada", diferenca_quantidade)
+                elif diferenca_quantidade < 0:
+                    self.registrar_movimentacao(nome_produto, "Saída", abs(diferenca_quantidade))
+
+                self.atualizar_tabela()
+                janela_atualizar.destroy()
+                messagebox.showinfo("Produto Atualizado", "Produto atualizado com sucesso!")
+            else:
+                messagebox.showerror("Erro", "Produto não encontrado.")
+
+        tk.Button(janela_atualizar, text="Atualizar", command=atualizar, bg="white", fg="black").grid(row=3, column=0, columnspan=2, pady=10)
+
+    def excluir_produto(self):
+        item_selecionado = self.tabela.selection()
+        if item_selecionado:
+            for item in item_selecionado:
+                valores = self.tabela.item(item)['values']
+                self.registrar_movimentacao(valores[0], "Exclusão", valores[2])
+                index = self.tabela.index(item)
+                self.estoque.pop(index)
+                self.tabela.delete(item)
+        else:
+            messagebox.showerror("Erro", "Nenhum produto selecionado para exclusão.")
+
+    def relatorio_baixo_estoque(self):
+        baixo_estoque = [produto for produto in self.estoque if produto[2] <= produto[4]]
+        if baixo_estoque:
+            relatorio = "\n".join([f"{p[0]} - Quantidade: {p[2]} (Limite Mínimo: {p[4]})" for p in baixo_estoque])
+            messagebox.showinfo("Relatório de Baixo Estoque", relatorio)
+        else:
+            messagebox.showinfo("Relatório de Baixo Estoque", "Nenhum produto com baixo estoque")
+
+    def atualizar_tabela(self):
+        for item in self.tabela.get_children():
+            self.tabela.delete(item)
+        for produto in self.estoque:
+            self.tabela.insert("", "end", values=produto)
+
+#fim
+def fazer_login_empresa():
+    usuario = nome_usuario.get()
+    senha = senha_entry.get()
+    
+    if usuario in usuarios_empresa and usuarios_empresa[usuario] == senha:
+        messagebox.showinfo("Login", f"Bem-vindo, {usuario}!")
+        janela.destroy()  # Fecha a janela de login
+        ControleEstoque(usuario)  # Abre o sistema de estoque
+    else:
+        messagebox.showerror("Erro", "Nome de usuário ou senha incorretos. Tente novamente.")
+
+def fazer_login_cliente():
+    usuario = nome_usuario.get()
+    senha = senha_entry.get()
+    
+    if usuario in usuarios_cliente and usuarios_cliente[usuario] == senha:
+        messagebox.showinfo("Login", f"Bem-vindo, {usuario}!")
+        # Aqui você poderia abrir um sistema de compras ou loja para clientes
+    else:
+        messagebox.showerror("Erro", "Nome de usuário ou senha incorretos. Tente novamente.")
+
+def criar_conta(tipo_usuario):
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Criar Conta")
+    nova_janela.geometry("300x300")
+
+    tk.Label(nova_janela, text="Informe um nome de usuário:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_usuario = tk.Entry(nova_janela, width=30)
+    entrada_usuario.pack(pady=5)
+
+    tk.Label(nova_janela, text="Informe uma senha:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_senha = tk.Entry(nova_janela, show='*', width=30)
+    entrada_senha.pack(pady=5)
+
+    def salvar_conta():
+        usuario = entrada_usuario.get()
+        senha = entrada_senha.get()
+        if tipo_usuario == "empresa":
+            if usuario in usuarios_empresa:
+                messagebox.showerror("Erro", "Usuário já existe. Tente outro nome.")
+            else:
+                usuarios_empresa[usuario] = senha
+                messagebox.showinfo("Sucesso", "Conta empresarial criada com sucesso!")
+                nova_janela.destroy()
+        else:
+            if usuario in usuarios_cliente:
+                messagebox.showerror("Erro", "Usuário já existe. Tente outro nome.")
+            else:
+                usuarios_cliente[usuario] = senha
+                messagebox.showinfo("Sucesso", "Conta de cliente criada com sucesso!")
+                nova_janela.destroy()
+
+    tk.Button(nova_janela, text="Criar", command=salvar_conta).pack(pady=10)
+
+def abrir_recuperacao_senha():
+    nova_janela = tk.Toplevel(janela)
+    nova_janela.title("Recuperação de Senha")
+    nova_janela.geometry("300x200")
+
+    tk.Label(nova_janela, text="Digite seu e-mail para recuperação:", font=('Arial', 9, 'bold')).pack(pady=10)
+    entrada_email = tk.Entry(nova_janela, width=30)
+    entrada_email.pack(pady=5)
+
+    tk.Button(nova_janela, text="Enviar", command=lambda: print("E-mail enviado para:", entrada_email.get())).pack(pady=10)
+
+def criar_janela_login(tipo_usuario):
+    global janela, nome_usuario, senha_entry
+    janela = tk.Tk()
+    janela.title(f"Login - {'Empresarial' if tipo_usuario == 'empresa' else 'Cliente'}")
+    janela.geometry("500x400")
+    janela.configure(bg='#0065CC')
+
+    nome_loja = tk.Label(janela, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), 
+                        fg='white', bg='#0065CC')
+    nome_loja.pack(pady=(50, 5))
+
+    frame = tk.Frame(janela, bg='white', padx=20, pady=20, borderwidth=2, relief="groove")
+    frame.pack(expand=True)
+
+    mensagem = tk.Label(frame, text="Nome de usuário", font=('Arial', 9, 'bold'), 
+                       fg='black', bg='white', width=25, height=1)
+    mensagem.grid(row=0, column=0, pady=(0, 5))
+
+    nome_usuario = tk.Entry(frame, width=30, bg='white')
+    nome_usuario.grid(row=1, column=0, pady=(0, 10))
+
+    mensagem2 = tk.Label(frame, text="Digite sua senha", font=('Arial', 9, 'bold'), 
+                        fg='black', bg='white', width=25, height=1)
+    mensagem2.grid(row=2, column=0, pady=(0, 5))
+
+    senha_entry = tk.Entry(frame, show='*', width=30, bg='white')
+    senha_entry.grid(row=3, column=0, pady=(0, 10))
+
+    botao = tk.Button(frame, text="Entrar", width=10,
+                     command=fazer_login_empresa if tipo_usuario == 'empresa' else fazer_login_cliente)
+    botao.grid(row=4, column=0, pady=(10, 5))
+
+    menu_opcoes = tk.Menubutton(frame, text="Mais...", relief="raised", fg='black', bg='white')
+    menu_opcoes.menu = tk.Menu(menu_opcoes, tearoff=0)
+    menu_opcoes["menu"] = menu_opcoes.menu
+
+    menu_opcoes.menu.add_command(label="Criar conta", 
+                                command=lambda: criar_conta(tipo_usuario))
+    menu_opcoes.menu.add_command(label="Esqueci minha senha", 
+                                command=abrir_recuperacao_senha)
+
+    menu_opcoes.grid(row=5, column=0, pady=(5, 0))
+
+    janela.mainloop()
+
+def selecionar_tipo():
+    janela_selecao = tk.Tk()
+    janela_selecao.title("TECNOPOINT - Selecione o tipo de acesso")
+    janela_selecao.geometry("400x300")
+    janela_selecao.configure(bg='#0065CC')
+
+    tk.Label(janela_selecao, text="TECNOPOINT", font=('Cooper Black', 20, 'bold'), 
+            fg='white', bg='#0065CC').pack(pady=(30,20))
+
+    tk.Label(janela_selecao, text="Selecione o tipo de acesso:", 
+            font=('Arial', 12, 'bold'), fg='white', bg='#0065CC').pack(pady=10)
+
+    def abrir_login_empresa():
+        janela_selecao.destroy()
+        criar_janela_login('empresa')
+
+    def abrir_login_cliente():
+        janela_selecao.destroy()
+        criar_janela_login('cliente')
+
+    tk.Button(janela_selecao, text="Empresa", width=20, height=2,
+              command=abrir_login_empresa).pack(pady=10)
+    tk.Button(janela_selecao, text="Cliente", width=20, height=2,
+              command=abrir_login_cliente).pack(pady=10)
+
+    janela_selecao.mainloop()
+
+if __name__ == "__main__":
+    selecionar_tipo()

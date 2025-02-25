@@ -1,0 +1,462 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Tempo de geração: 25-Fev-2025 às 20:39
+-- Versão do servidor: 10.4.27-MariaDB
+-- versão do PHP: 8.2.0
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Banco de dados: `sa_lojaeletronico`
+--
+CREATE DATABASE IF NOT EXISTS `sa_lojaeletronico` DEFAULT CHARACTER SET latin1 COLLATE latin1_swedish_ci;
+USE `sa_lojaeletronico`;
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `cliente`
+--
+
+CREATE TABLE `cliente` (
+  `id_cliente` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `cpf` char(14) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `telefone` varchar(20) NOT NULL,
+  `endereco` varchar(50) NOT NULL,
+  `estado` varchar(2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Extraindo dados da tabela `cliente`
+--
+
+INSERT INTO `cliente` (`id_cliente`, `nome`, `cpf`, `email`, `telefone`, `endereco`, `estado`) VALUES
+(1, 'João Silva', '12345678901', 'joao.silva@email.com', '(11) 98765-4321', 'Rua das Flores, 123', 'SP'),
+(2, 'Maria Santos', '23456789012', 'maria.santos@email.com', '(21) 98765-1234', 'Avenida Paulista, 456', 'RJ'),
+(3, 'Pedro Almeida', '34567890123', 'pedro.almeida@email.com', '(31) 98765-5678', 'Rua do Carmo, 789', 'MG'),
+(4, 'Ana Oliveira', '45678901234', 'ana.oliveira@email.com', '(41) 98765-8901', 'Rua da Praia, 321', 'PR'),
+(5, 'Carlos Pereira', '56789012345', 'carlos.pereira@email.com', '(51) 98765-2345', 'Rua dos Pinheiros, 654', 'RS'),
+(6, 'Juliana Costa', '67890123456', 'juliana.costa@email.com', '(61) 98765-6789', 'Rua das Palmeiras, 987', 'DF'),
+(7, 'Fernando Lima', '78901234567', 'fernando.lima@email.com', '(71) 98765-3456', 'Rua do Comércio, 159', 'BA'),
+(8, 'Camila Sousa', '89012345678', 'camila.sousa@email.com', '(81) 98765-7890', 'Rua da Liberdade, 753', 'PE'),
+(9, 'Rafael Barbosa', '90123456789', 'rafael.barbosa@email.com', '(91) 98765-4567', 'Rua dos Coqueiros, 357', 'PA'),
+(10, 'Laura Mendes', '01234567890', 'laura.mendes@email.com', '(12) 98765-5678', 'Rua das Acácias, 852', 'SC'),
+(11, 'Gustavo Rocha', '12345098765', 'gustavo.rocha@email.com', '(22) 98765-6789', 'Rua das Margaridas, 963', 'RJ'),
+(12, 'Beatriz Ferreira', '23456109876', 'beatriz.ferreira@email.com', '(32) 98765-7890', 'Rua dos Ipês, 741', 'MG'),
+(13, 'Rodrigo Gomes', '34567210987', 'rodrigo.gomes@email.com', '(42) 98765-8901', 'Rua das Orquídeas, 825', 'PR'),
+(14, 'Isabela Martins', '45678321098', 'isabela.martins@email.com', '(52) 98765-9012', 'Rua das Hortênsias, 639', 'RS'),
+(15, 'Lucas Carvalho', '56789432109', 'lucas.carvalho@email.com', '(62) 98765-0123', 'Rua dos Jacarandás, 147', 'GO'),
+(16, 'Mariana Alves', '67890543210', 'mariana.alves@email.com', '(72) 98765-1234', 'Rua das Bromélias, 258', 'BA'),
+(17, 'Thiago Ribeiro', '78901654321', 'thiago.ribeiro@email.com', '(82) 98765-2345', 'Rua das Violetas, 369', 'AL'),
+(18, 'Larissa Castro', '89012765432', 'larissa.castro@email.com', '(92) 98765-3456', 'Rua das Rosas, 789', 'AM'),
+(19, 'Diego Souza', '90123876543', 'diego.souza@email.com', '(13) 98765-4567', 'Rua das Tulipas, 951', 'SP'),
+(20, 'Gabriela Lima', '01234987654', 'gabriela.lima@email.com', '(23) 98765-5678', 'Rua das Camélias, 357', 'CE');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `fornecedor`
+--
+
+CREATE TABLE `fornecedor` (
+  `id_fornecedor` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `cnpj` char(14) NOT NULL,
+  `endereco` varchar(255) NOT NULL,
+  `telefone` varchar(20) NOT NULL,
+  `estado` varchar(2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Extraindo dados da tabela `fornecedor`
+--
+
+INSERT INTO `fornecedor` (`id_fornecedor`, `nome`, `cnpj`, `endereco`, `telefone`, `estado`) VALUES
+(1, 'EletronTech', '12345678901234', 'Rua dos Componentes, 150', '(11) 3333-1234', 'SP'),
+(2, 'Digital Parts', '23456789012345', 'Avenida Tecnológica, 250', '(21) 3333-2345', 'RJ'),
+(3, 'Power Eletronics', '34567890123456', 'Rua dos Circuitos, 350', '(31) 3333-3456', 'MG'),
+(4, 'Smart Devices', '45678901234567', 'Rua da Inovação, 450', '(41) 3333-4567', 'PR'),
+(5, 'Future Tech', '56789012345678', 'Avenida Digital, 550', '(51) 3333-5678', 'RS'),
+(6, 'ElectroMax', '67890123456789', 'Rua dos Chips, 650', '(61) 3333-6789', 'DF'),
+(7, 'NanoTech Supplies', '78901234567890', 'Rua dos Transistores, 750', '(71) 3333-7890', 'BA'),
+(8, 'TechWave', '89012345678901', 'Rua dos Displays, 850', '(81) 3333-8901', 'PE'),
+(9, 'Quantum Electronics', '90123456789012', 'Rua das Placas, 950', '(91) 3333-9012', 'PA'),
+(10, 'Voltex Components', '01234567890123', 'Rua dos Sensores, 1050', '(12) 3333-0123', 'SC');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `funcionario`
+--
+
+CREATE TABLE `funcionario` (
+  `id_funcionario` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `cpf` char(14) NOT NULL,
+  `cargo` varchar(50) NOT NULL,
+  `salario` decimal(15,2) NOT NULL,
+  `comissao` decimal(15,2) DEFAULT NULL,
+  `id_loja` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Extraindo dados da tabela `funcionario`
+--
+
+INSERT INTO `funcionario` (`id_funcionario`, `nome`, `cpf`, `cargo`, `salario`, `comissao`, `id_loja`) VALUES
+(1, 'João Pereira', '12345678901', 'Gerente de Vendas', '5000.00', '10.00', 1),
+(2, 'Maria Santos', '23456789012', 'Vendedor', '2500.00', '5.00', 1),
+(3, 'Carlos Almeida', '34567890123', 'Supervisor de Estoque', '3000.00', '3.00', 1),
+(4, 'Ana Oliveira', '45678901234', 'Atendente', '1800.00', '2.00', 1),
+(5, 'Rafael Silva', '56789012345', 'Técnico de Suporte', '2800.00', '4.00', 1),
+(6, 'Fernanda Lima', '67890123456', 'Gerente de Vendas', '5200.00', '10.00', 2),
+(7, 'Paulo Costa', '78901234567', 'Vendedor', '2600.00', '5.00', 2),
+(8, 'Juliana Mendes', '89012345678', 'Supervisor de Estoque', '3100.00', '3.00', 2),
+(9, 'Lucas Ferreira', '90123456789', 'Atendente', '1900.00', '2.00', 2),
+(10, 'Mariana Rocha', '01234567890', 'Técnico de Suporte', '2900.00', '4.00', 2),
+(11, 'Gustavo Alves', '12345098765', 'Gerente de Vendas', '5100.00', '10.00', 3),
+(12, 'Camila Sousa', '23456109876', 'Vendedor', '2700.00', '5.00', 3),
+(13, 'Diego Barbosa', '34567210987', 'Supervisor de Estoque', '3200.00', '3.00', 3),
+(14, 'Larissa Gomes', '45678321098', 'Atendente', '2000.00', '2.00', 3),
+(15, 'Thiago Castro', '56789432109', 'Técnico de Suporte', '3000.00', '4.00', 3);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `itemdepedido`
+--
+
+CREATE TABLE `itemdepedido` (
+  `id_item_de_pedido` int(11) NOT NULL,
+  `quantidade` int(11) NOT NULL,
+  `subtotal` decimal(15,2) NOT NULL,
+  `id_pedido` int(11) NOT NULL,
+  `id_produto` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Extraindo dados da tabela `itemdepedido`
+--
+
+INSERT INTO `itemdepedido` (`id_item_de_pedido`, `quantidade`, `subtotal`, `id_pedido`, `id_produto`) VALUES
+(1, 1, '1500.00', 1, 1),
+(2, 2, '600.00', 1, 4),
+(3, 1, '800.00', 2, 2),
+(4, 3, '360.00', 2, 3),
+(5, 1, '2200.00', 3, 5),
+(6, 1, '800.00', 4, 6),
+(7, 2, '900.00', 5, 7),
+(8, 1, '3000.00', 6, 8),
+(9, 1, '400.00', 6, 9),
+(10, 2, '500.00', 7, 10),
+(11, 1, '750.00', 8, 11),
+(12, 1, '180.00', 9, 12),
+(13, 3, '150.00', 10, 13),
+(14, 1, '1800.00', 11, 14),
+(15, 2, '160.00', 11, 15),
+(16, 1, '750.00', 12, 16),
+(17, 1, '200.00', 13, 17),
+(18, 1, '25.00', 14, 18),
+(19, 1, '950.00', 15, 19),
+(20, 1, '4500.00', 16, 20),
+(21, 1, '3200.00', 17, 21),
+(22, 2, '300.00', 18, 22),
+(23, 1, '800.00', 19, 23),
+(24, 1, '2200.00', 20, 24),
+(25, 1, '1200.00', 21, 25),
+(26, 1, '950.00', 22, 26),
+(27, 1, '3000.00', 23, 27),
+(28, 1, '1800.00', 24, 28),
+(29, 1, '750.00', 25, 29);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `loja`
+--
+
+CREATE TABLE `loja` (
+  `id_loja` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `endereco` varchar(255) NOT NULL,
+  `estado` varchar(2) NOT NULL,
+  `telefone` varchar(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Extraindo dados da tabela `loja`
+--
+
+INSERT INTO `loja` (`id_loja`, `nome`, `endereco`, `estado`, `telefone`) VALUES
+(1, 'Loja Eletrônicos SP', 'Rua das Tecnologias, 100', '', '(11) 1234-5678'),
+(2, 'Loja Eletrônicos RJ', 'Avenida Digital, 200', '', '(21) 2345-6789'),
+(3, 'Loja Eletrônicos MG', 'Rua dos Componentes, 300', '', '(31) 3456-7890');
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `pedido`
+--
+
+CREATE TABLE `pedido` (
+  `id_pedido` int(11) NOT NULL,
+  `data_pedido` date NOT NULL,
+  `valor_total` decimal(15,2) NOT NULL,
+  `prazo_entrega` int(10) NOT NULL,
+  `id_cliente` int(11) NOT NULL,
+  `id_funcionario` int(11) NOT NULL,
+  `id_loja` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Extraindo dados da tabela `pedido`
+--
+
+INSERT INTO `pedido` (`id_pedido`, `data_pedido`, `valor_total`, `prazo_entrega`, `id_cliente`, `id_funcionario`, `id_loja`) VALUES
+(1, '2023-10-01', '1500.00', 2023, 1, 1, 1),
+(2, '2023-10-02', '800.00', 2023, 2, 2, 1),
+(3, '2023-10-03', '2200.00', 2023, 3, 1, 1),
+(4, '2023-10-04', '1200.00', 2023, 4, 2, 1),
+(5, '2023-10-05', '950.00', 2023, 5, 1, 1),
+(6, '2023-10-06', '3000.00', 2023, 6, 6, 2),
+(7, '2023-10-07', '1800.00', 2023, 7, 7, 2),
+(8, '2023-10-08', '750.00', 2023, 8, 6, 2),
+(9, '2023-10-09', '2500.00', 2023, 9, 7, 2),
+(10, '2023-10-10', '1100.00', 2023, 10, 6, 2),
+(11, '2023-10-11', '1800.00', 2023, 11, 11, 3),
+(12, '2023-10-12', '750.00', 2023, 12, 12, 3),
+(13, '2023-10-13', '2500.00', 2023, 13, 11, 3),
+(14, '2023-10-14', '1200.00', 2023, 14, 12, 3),
+(15, '2023-10-15', '950.00', 2023, 15, 11, 3),
+(16, '2023-10-16', '4500.00', 2023, 16, 1, 1),
+(17, '2023-10-17', '3200.00', 2023, 17, 6, 2),
+(18, '2023-10-18', '1500.00', 2023, 18, 11, 3),
+(19, '2023-10-19', '800.00', 2023, 19, 2, 1),
+(20, '2023-10-20', '2200.00', 2023, 20, 7, 2),
+(21, '2023-10-21', '1200.00', 2023, 1, 12, 3),
+(22, '2023-10-22', '950.00', 2023, 2, 1, 1),
+(23, '2023-10-23', '3000.00', 2023, 3, 6, 2),
+(24, '2023-10-24', '1800.00', 2023, 4, 11, 3),
+(25, '2023-10-25', '750.00', 2023, 5, 2, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `produto`
+--
+
+CREATE TABLE `produto` (
+  `id_produto` int(11) NOT NULL,
+  `nome` varchar(100) NOT NULL,
+  `descricao` text DEFAULT NULL,
+  `preco` decimal(15,2) NOT NULL,
+  `estoque` int(11) NOT NULL,
+  `id_fornecedor` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Extraindo dados da tabela `produto`
+--
+
+INSERT INTO `produto` (`id_produto`, `nome`, `descricao`, `preco`, `estoque`, `id_fornecedor`) VALUES
+(1, 'Smartphone X10', 'Smartphone com tela de 6.5 polegadas e câmera de 48MP', '1500.00', 50, 1),
+(2, 'Fone de Ouvido BT', 'Fone sem fio com cancelamento de ruído', '300.00', 100, 1),
+(3, 'Carregador Portátil', 'Power bank de 20.000mAh', '120.00', 200, 1),
+(4, 'Cabo USB-C', 'Cabo carregador USB-C de alta velocidade', '25.00', 300, 1),
+(5, 'Adaptador HDMI', 'Adaptador USB-C para HDMI 4K', '80.00', 150, 1),
+(6, 'Notebook ProMax', 'Notebook com processador i7 e 16GB de RAM', '4500.00', 20, 2),
+(7, 'Mouse Gamer RGB', 'Mouse com iluminação RGB e DPI ajustável', '150.00', 80, 2),
+(8, 'Teclado Mecânico RGB', 'Teclado gamer com switches mecânicos', '500.00', 25, 2),
+(9, 'Cooler Notebook', 'Base refrigeradora para notebooks', '100.00', 50, 2),
+(10, 'Suporte Monitor', 'Suporte ergonômico para monitores', '120.00', 40, 2),
+(11, 'Smart TV 50\"', 'TV LED 4K com resolução Ultra HD', '2500.00', 30, 3),
+(12, 'Soundbar Bluetooth', 'Barra de som com conectividade Bluetooth', '400.00', 40, 3),
+(13, 'Controle Remoto Universal', 'Controle compatível com diversas marcas', '80.00', 150, 3),
+(14, 'Antena Digital', 'Antena interna para sinal digital', '50.00', 200, 3),
+(15, 'Cabos HDMI', 'Conjunto de cabos HDMI 2m', '30.00', 300, 3),
+(16, 'Câmera DSLR Z300', 'Câmera profissional com lente intercambiável', '3200.00', 15, 4),
+(17, 'Tripé Profissional', 'Tripé ajustável para câmeras e smartphones', '250.00', 50, 4),
+(18, 'Lente Teleobjetiva', 'Lente zoom óptico para DSLR', '1200.00', 10, 4),
+(19, 'Flash Externo', 'Flash removível para câmeras DSLR', '400.00', 25, 4),
+(20, 'Cartão SD 128GB', 'Cartão de memória SDXC de alta velocidade', '150.00', 100, 4),
+(21, 'Tablet MiniTab', 'Tablet compacto com tela de 8 polegadas', '800.00', 40, 5),
+(22, 'Capa Protetora Tablet', 'Capa resistente para tablets de 8 a 10 polegadas', '50.00', 200, 5),
+(23, 'Película Vidro Tablet', 'Película de vidro temperado para tablets', '30.00', 300, 5),
+(24, 'Caneta Stylus', 'Caneta touch para tablets', '60.00', 150, 5),
+(25, 'Carregador Tablet', 'Carregador rápido para tablets', '90.00', 100, 5),
+(26, 'Relógio Smartwatch G1', 'Smartwatch com monitoramento de saúde', '450.00', 60, 6),
+(27, 'Pulseira de Reposição', 'Pulseira extra para smartwatches', '20.00', 500, 6),
+(28, 'Carregador Magnético', 'Carregador exclusivo para smartwatches', '60.00', 120, 6),
+(29, 'Protetor Tela Smartwatch', 'Película protetora para smartwatches', '15.00', 300, 6),
+(30, 'Bateria Extra Smartwatch', 'Bateria recarregável para smartwatches', '40.00', 200, 6),
+(31, 'Caixa de Som Bluetooth', '', '250.00', 80, 7),
+(32, 'Microfone USB', 'Microfone condensador para gravações', '350.00', 30, 7),
+(33, 'Suporte para Celular', 'Suporte ajustável para celulares e tablets', '40.00', 250, 7),
+(34, 'Ring Light', 'Iluminação circular para selfies e vídeos', '120.00', 50, 7),
+(35, 'Tripé Celular', 'Tripé ajustável para smartphones', '60.00', 150, 7),
+(36, 'HD Externo 1TB', 'Disco rígido externo portátil', '300.00', 50, 8),
+(37, 'Pen Drive 128GB', 'Memória flash USB 3.0', '80.00', 400, 8),
+(38, 'Cartão de Memória 256GB', 'Cartão SDXC de alta velocidade', '150.00', 300, 8),
+(39, 'SSD Interno 500GB', 'SSD SATA para upgrade de PCs', '400.00', 20, 8),
+(40, 'Gabinete Gamer', 'Gabinete com janela lateral em vidro temperado', '250.00', 30, 8),
+(41, 'Impressora Multifuncional', 'Impressora com scanner e copiadora', '600.00', 25, 9),
+(42, 'Toner Preto', 'Toner compatível com impressoras multifuncionais', '200.00', 100, 9),
+(43, 'Papel A4 500 Folhas', 'Pacote de papel branco A4', '25.00', 500, 9),
+(44, 'Scanner Portátil', 'Scanner compacto para documentos', '350.00', 15, 9),
+(45, 'Etiquetas Adesivas', 'Pacote de etiquetas adesivas A4', '40.00', 200, 9),
+(46, 'Drone FPV', 'Drone com câmera Full HD e controle remoto', '1200.00', 10, 10),
+(47, 'Bateria Extra Drone', 'Bateria recarregável para drones', '180.00', 50, 10),
+(48, 'Hélices Reposição', 'Conjunto de hélices para drones', '50.00', 200, 10),
+(49, 'Mochila Transporte Drone', 'Mochila acolchoada para transporte de drones', '200.00', 30, 10),
+(50, 'Controle Remoto Drone', 'Controle remoto avançado para drones', '300.00', 15, 10);
+
+--
+-- Índices para tabelas despejadas
+--
+
+--
+-- Índices para tabela `cliente`
+--
+ALTER TABLE `cliente`
+  ADD PRIMARY KEY (`id_cliente`),
+  ADD UNIQUE KEY `cpf` (`cpf`);
+
+--
+-- Índices para tabela `fornecedor`
+--
+ALTER TABLE `fornecedor`
+  ADD PRIMARY KEY (`id_fornecedor`),
+  ADD UNIQUE KEY `cnpj` (`cnpj`);
+
+--
+-- Índices para tabela `funcionario`
+--
+ALTER TABLE `funcionario`
+  ADD PRIMARY KEY (`id_funcionario`),
+  ADD UNIQUE KEY `cpf` (`cpf`),
+  ADD KEY `id_loja` (`id_loja`);
+
+--
+-- Índices para tabela `itemdepedido`
+--
+ALTER TABLE `itemdepedido`
+  ADD PRIMARY KEY (`id_item_de_pedido`),
+  ADD KEY `id_pedido` (`id_pedido`),
+  ADD KEY `id_produto` (`id_produto`);
+
+--
+-- Índices para tabela `loja`
+--
+ALTER TABLE `loja`
+  ADD PRIMARY KEY (`id_loja`);
+
+--
+-- Índices para tabela `pedido`
+--
+ALTER TABLE `pedido`
+  ADD PRIMARY KEY (`id_pedido`),
+  ADD KEY `id_cliente` (`id_cliente`),
+  ADD KEY `id_funcionario` (`id_funcionario`),
+  ADD KEY `id_loja` (`id_loja`);
+
+--
+-- Índices para tabela `produto`
+--
+ALTER TABLE `produto`
+  ADD PRIMARY KEY (`id_produto`),
+  ADD KEY `id_fornecedor` (`id_fornecedor`);
+
+--
+-- AUTO_INCREMENT de tabelas despejadas
+--
+
+--
+-- AUTO_INCREMENT de tabela `cliente`
+--
+ALTER TABLE `cliente`
+  MODIFY `id_cliente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT de tabela `fornecedor`
+--
+ALTER TABLE `fornecedor`
+  MODIFY `id_fornecedor` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+
+--
+-- AUTO_INCREMENT de tabela `funcionario`
+--
+ALTER TABLE `funcionario`
+  MODIFY `id_funcionario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT de tabela `itemdepedido`
+--
+ALTER TABLE `itemdepedido`
+  MODIFY `id_item_de_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+
+--
+-- AUTO_INCREMENT de tabela `loja`
+--
+ALTER TABLE `loja`
+  MODIFY `id_loja` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT de tabela `pedido`
+--
+ALTER TABLE `pedido`
+  MODIFY `id_pedido` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+
+--
+-- AUTO_INCREMENT de tabela `produto`
+--
+ALTER TABLE `produto`
+  MODIFY `id_produto` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+
+--
+-- Restrições para despejos de tabelas
+--
+
+--
+-- Limitadores para a tabela `funcionario`
+--
+ALTER TABLE `funcionario`
+  ADD CONSTRAINT `funcionario_ibfk_1` FOREIGN KEY (`id_loja`) REFERENCES `loja` (`id_loja`);
+
+--
+-- Limitadores para a tabela `itemdepedido`
+--
+ALTER TABLE `itemdepedido`
+  ADD CONSTRAINT `itemdepedido_ibfk_1` FOREIGN KEY (`id_pedido`) REFERENCES `pedido` (`id_pedido`),
+  ADD CONSTRAINT `itemdepedido_ibfk_2` FOREIGN KEY (`id_produto`) REFERENCES `produto` (`id_produto`);
+
+--
+-- Limitadores para a tabela `pedido`
+--
+ALTER TABLE `pedido`
+  ADD CONSTRAINT `pedido_ibfk_1` FOREIGN KEY (`id_cliente`) REFERENCES `cliente` (`id_cliente`),
+  ADD CONSTRAINT `pedido_ibfk_2` FOREIGN KEY (`id_funcionario`) REFERENCES `funcionario` (`id_funcionario`),
+  ADD CONSTRAINT `pedido_ibfk_3` FOREIGN KEY (`id_loja`) REFERENCES `loja` (`id_loja`);
+
+--
+-- Limitadores para a tabela `produto`
+--
+ALTER TABLE `produto`
+  ADD CONSTRAINT `produto_ibfk_1` FOREIGN KEY (`id_fornecedor`) REFERENCES `fornecedor` (`id_fornecedor`);
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
